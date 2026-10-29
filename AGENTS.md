@@ -54,6 +54,11 @@ card flow and one audio clip. Use the browser tools only for this local URL.
     python3 -m unittest discover -s tests -v
     python3 build.py --site
 
+## Past mistakes
+
+Before you change the deploy workflow, the way word text is escaped, or the review process,
+read [docs/mistakes.md](docs/mistakes.md).
+
 ## Git and deploys
 
 - Work on a branch and open a PR. Do not push to `main`.
