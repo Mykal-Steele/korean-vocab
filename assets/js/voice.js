@@ -124,16 +124,37 @@ const Voice = (() => {
 
   if (typeof window !== 'undefined') window.addEventListener('beforeunload', stop);
 
-  /** The clip URLs to warm: one per distinct file, in table order, skipping inline data. */
-  function clipUrlsToWarm(table, base) {
+  /**
+   * The clip URLs to warm: one per distinct file, skipping inline data. Keys listed in
+   * `order` come first, in that order, so the words on screen load before the rest.
+   */
+  function clipUrlsToWarm(table, base, order = []) {
+    const keys = [
+      ...order.filter((key) => key in table),
+      ...Object.keys(table).filter((key) => !order.includes(key)),
+    ];
     const seen = new Set();
     const urls = [];
-    for (const file of Object.values(table)) {
+    for (const key of keys) {
+      const file = table[key];
       if (typeof file !== 'string' || file.startsWith('data:') || seen.has(file)) continue;
       seen.add(file);
       urls.push(base + file);
     }
     return urls;
+  }
+
+  /** True when the viewer asked for less data or has a very slow connection. */
+  function prefersLessData() {
+    const connection = typeof navigator !== 'undefined' ? navigator.connection : undefined;
+    if (!connection) return false;
+    return Boolean(connection.saveData) || /2g/.test(connection.effectiveType || '');
+  }
+
+  /** Strings in the order the deck shows them, so the first card's clips load first. */
+  function displayOrder() {
+    if (typeof WORDS === 'undefined') return [];
+    return WORDS.flatMap((word) => [word.ko, word.example && word.example.ko, word.en]);
   }
 
   // Background warm-up of the clips. A play press holds it so the pressed clip loads first.
@@ -178,8 +199,8 @@ const Voice = (() => {
   }
 
   function warmClips() {
-    if (!hasClips) return;
-    warm.urls = clipUrlsToWarm(AUDIO, AUDIO_BASE);
+    if (!hasClips || prefersLessData()) return;
+    warm.urls = clipUrlsToWarm(AUDIO, AUDIO_BASE, displayOrder());
     if (document.readyState === 'complete') scheduleWarm();
     else window.addEventListener('load', scheduleWarm, { once: true });
   }
