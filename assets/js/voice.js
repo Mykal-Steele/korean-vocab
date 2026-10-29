@@ -119,5 +119,45 @@ const Voice = (() => {
 
   if (typeof window !== 'undefined') window.addEventListener('beforeunload', stop);
 
-  return { play, stop, has, get clipCount() { return hasClips ? Object.keys(AUDIO).length : 0; } };
+  /** The clip URLs to warm: one per distinct file, in table order, skipping inline data. */
+  function clipUrlsToWarm(table, base) {
+    const seen = new Set();
+    const urls = [];
+    for (const file of Object.values(table)) {
+      if (typeof file !== 'string' || file.startsWith('data:') || seen.has(file)) continue;
+      seen.add(file);
+      urls.push(base + file);
+    }
+    return urls;
+  }
+
+  /**
+   * Warms the browser cache with every clip after the page has loaded, a few at a time in
+   * idle slots. Prefetch is low priority, so the page itself loads no slower, and a clip
+   * played later comes from the cache.
+   */
+  function warmClips() {
+    if (!hasClips) return;
+    const urls = clipUrlsToWarm(AUDIO, AUDIO_BASE);
+    const idle = typeof requestIdleCallback === 'function'
+      ? (cb) => requestIdleCallback(cb, { timeout: 2000 })
+      : (cb) => setTimeout(cb, 300);
+    let next = 0;
+    const batch = () => {
+      const end = Math.min(next + 20, urls.length);
+      for (; next < end; next++) {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'audio';
+        link.href = urls[next];
+        document.head.appendChild(link);
+      }
+      if (next < urls.length) idle(batch);
+    };
+    if (document.readyState === 'complete') idle(batch);
+    else window.addEventListener('load', () => idle(batch), { once: true });
+  }
+  warmClips();
+
+  return { play, stop, has, clipUrlsToWarm, get clipCount() { return hasClips ? Object.keys(AUDIO).length : 0; } };
 })();
