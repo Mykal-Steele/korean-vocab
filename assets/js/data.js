@@ -19,7 +19,9 @@ const CATEGORIES = [
   { id: 'sutja', ko: '고유어 숫자', en: 'Native numbers', th: 'ตัวเลขเกาหลีแท้' },
   { id: 'eumnyo', ko: '음료', en: 'Drinks', th: 'เครื่องดื่ม' },
   { id: 'jangso', ko: '장소', en: 'Places', th: 'สถานที่' },
-  { id: 'hanja', ko: '한자어 숫자', en: 'Sino-Korean numbers', th: 'ตัวเลขจีน-เกาหลี' }
+  { id: 'hanja', ko: '한자어 숫자', en: 'Sino-Korean numbers', th: 'ตัวเลขจีน-เกาหลี' },
+  { id: 'sigan', ko: '시간', en: 'Time', th: 'เวลา' },
+  { id: 'haengdong', ko: '행동', en: 'Actions', th: 'การกระทำ' }
 ];
 
 const WORDS = [
@@ -478,5 +480,125 @@ const WORDS = [
     accept: ['ten thousand', '10000', '10,000'],
     en: 'Ten thousand', th: 'หนึ่งหมื่น', category: 'hanja',
     example: { ko: '만 원을 냈어요.', en: 'I paid ten thousand won.' }
+  },
+  {
+    ko: '오전', rom: 'ojeon', syl: ['o', 'jeon'],
+    accept: ['am', 'a.m.', 'morning'],
+    en: 'a.m.', th: 'ตอนเช้า', category: 'sigan',
+    example: { ko: '오전에 학교에 가요.', en: 'I go to school in the morning.' }
+  },
+  {
+    ko: '오후', rom: 'ohu', syl: ['o', 'hu'],
+    accept: ['pm', 'p.m.', 'afternoon'],
+    en: 'p.m.', th: 'ตอนบ่าย', category: 'sigan',
+    example: { ko: '오후에 일해요.', en: 'I work in the afternoon.' }
+  },
+  {
+    ko: '아침', rom: 'achim', syl: ['a', 'chim'],
+    accept: ['morning', 'breakfast time'],
+    en: 'Morning', th: 'เช้า', category: 'sigan',
+    example: { ko: '아침에 커피를 마셔요.', en: 'I drink coffee in the morning.' }
+  },
+  {
+    ko: '점심', rom: 'jeomsim', syl: ['jeom', 'sim'],
+    accept: ['lunch', 'noon', 'midday'],
+    en: 'Lunch', th: 'เที่ยง', category: 'sigan',
+    example: { ko: '점심에 친구를 만나요.', en: 'I meet a friend at lunch.' }
+  },
+  {
+    ko: '저녁', rom: 'jeonyeok', syl: ['jeo', 'nyeok'],
+    accept: ['evening', 'dinner time'],
+    en: 'Evening', th: 'ตอนเย็น', category: 'sigan',
+    example: { ko: '저녁에 운동해요.', en: 'I exercise in the evening.' }
+  },
+  {
+    ko: '밤', rom: 'bam', syl: ['bam'],
+    accept: ['night', 'at night'],
+    en: 'Night', th: 'กลางคืน', category: 'sigan',
+    example: { ko: '밤에 자요.', en: 'I sleep at night.' }
+  },
+  {
+    ko: '시', rom: 'si', syl: ['si'],
+    accept: ['hour', 'oclock', 'o\'clock', 'hours'],
+    en: 'O’clock', th: 'โมง', category: 'sigan',
+    example: { ko: '세 시에 만나요.', en: 'Let us meet at three o\'clock.' }
+  },
+  {
+    ko: '분', rom: 'bun', syl: ['bun'],
+    accept: ['minute', 'minutes', 'min'],
+    en: 'Minute', th: 'นาที', category: 'sigan',
+    example: { ko: '십 분 후에 만나요.', en: 'Let us meet in ten minutes.' }
+  },
+  {
+    ko: '공부하다', rom: 'gongbuhada', syl: ['gong', 'bu', 'ha', 'da'],
+    accept: ['study', 'to study'],
+    en: 'To study', th: 'เรียน', category: 'haengdong',
+    example: { ko: '도서관에서 공부해요.', en: 'I study at the library.' }
+  },
+  {
+    ko: '세수하다', rom: 'sesuhada', syl: ['se', 'su', 'ha', 'da'],
+    accept: ['wash face', 'wash your face'],
+    en: 'To wash one’s face', th: 'ล้างหน้า', category: 'haengdong',
+    example: { ko: '아침에 세수해요.', en: 'I wash my face in the morning.' }
+  },
+  {
+    ko: '쇼핑하다', rom: 'syopinghada', syl: ['syo', 'ping', 'ha', 'da'],
+    accept: ['shop', 'shopping', 'go shopping'],
+    en: 'To go shopping', th: 'ช็อปปิ้ง / ไปช็อปปิ้ง', category: 'haengdong',
+    example: { ko: '주말에 쇼핑해요.', en: 'I go shopping on the weekend.' }
+  },
+  {
+    ko: '숙제하다', rom: 'sukjehada', syl: ['suk', 'je', 'ha', 'da'], say: '숙쩨하다',
+    accept: ['homework', 'do homework'],
+    en: 'To do homework', th: 'ทำการบ้าน', category: 'haengdong',
+    example: { ko: '저녁에 숙제해요.', en: 'I do homework in the evening.' }
+  },
+  {
+    ko: '운동하다', rom: 'undonghada', syl: ['un', 'dong', 'ha', 'da'],
+    accept: ['exercise', 'work out'],
+    en: 'To exercise', th: 'ออกกำลังกาย', category: 'haengdong',
+    example: { ko: '매일 운동해요.', en: 'I exercise every day.' }
+  },
+  {
+    ko: '이야기하다', rom: 'iyagihada', syl: ['i', 'ya', 'gi', 'ha', 'da'],
+    accept: ['talk', 'chat', 'to chat'],
+    en: 'To talk / to chat', th: 'คุย', category: 'haengdong',
+    example: { ko: '친구와 이야기해요.', en: 'I chat with a friend.' }
+  },
+  {
+    ko: '일하다', rom: 'ilhada', syl: ['il', 'ha', 'da'],
+    accept: ['work', 'to work'],
+    en: 'To work', th: 'ทำงาน', category: 'haengdong',
+    example: { ko: '회사에서 일해요.', en: 'I work at a company.' }
+  },
+  {
+    ko: '전화하다', rom: 'jeonhwahada', syl: ['jeon', 'hwa', 'ha', 'da'],
+    accept: ['call', 'phone call', 'make a call'],
+    en: 'To make a phone call', th: 'โทรศัพท์', category: 'haengdong',
+    example: { ko: '친구에게 전화해요.', en: 'I call my friend.' }
+  },
+  {
+    ko: '아침식사하다', rom: 'achimsiksahada', syl: ['a', 'chim', 'sik', 'sa', 'ha', 'da'], say: '아침식싸하다',
+    accept: ['have breakfast', 'eat breakfast'],
+    en: 'To have breakfast', th: 'กินอาหารเช้า', category: 'haengdong',
+    example: { ko: '아침에 빵을 먹어요.', en: 'I eat bread in the morning.' }
+  },
+  {
+    ko: '점심식사하다', rom: 'jeomsimsiksahada', syl: ['jeom', 'sim', 'sik', 'sa', 'ha', 'da'], say: '점심식싸하다',
+    accept: ['have lunch', 'eat lunch'],
+    en: 'To have lunch', th: 'กินอาหารเที่ยง', category: 'haengdong',
+    example: { ko: '점심에 친구와 식사해요.', en: 'I eat lunch with a friend.' }
+  },
+  {
+    ko: '저녁식사하다', rom: 'jeonyeoksiksahada', syl: ['jeo', 'nyeok', 'sik', 'sa', 'ha', 'da'], say: '저녁식싸하다',
+    accept: ['have dinner', 'eat dinner'],
+    en: 'To have dinner', th: 'กินอาหารเย็น', category: 'haengdong',
+    example: { ko: '저녁에 가족과 식사해요.', en: 'I have dinner with my family.' }
+  },
+  {
+    ko: '가다', rom: 'gada', syl: ['ga', 'da'],
+    accept: ['go', 'go to', 'go to a place'],
+    en: 'To go (to a place)', th: 'ไป', category: 'haengdong',
+    example: { ko: '학교에 가요.', en: 'I go to school.' }
   }
 ];
