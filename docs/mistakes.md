@@ -84,3 +84,14 @@ Running the tests rebuilt the tracked `dist/` files, which left them modified.
 Rule: restore `dist/` after tests and builds, or run them from a separate copy.
 
 Check: none. This is a process rule.
+
+## Read the headers back after an upload
+
+The deploy set `Cache-Control` on uploads, but the stored objects never got it. Two things
+hid it: `rclone copy` skips files that look unchanged, so existing objects were never
+rewritten, and CI ran an older rclone that didn't store the header.
+
+Rule: after an upload, read the stored metadata back and fail if a header is wrong. Pin the
+tool version in CI to the one you tested locally.
+
+Check: the deploy job's "Check the stored cache headers" step.
