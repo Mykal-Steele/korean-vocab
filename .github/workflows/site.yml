@@ -117,19 +117,59 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install rclone
-        run: sudo apt-get update && sudo apt-get install -y rclone
+        # Pinned to the version that was tested. The Ubuntu package (1.60) did not
+        # store the Cache-Control header on uploads.
+        run: |
+          curl -fsSLO https://downloads.rclone.org/v1.75.2/rclone-v1.75.2-linux-amd64.zip
+          unzip -q rclone-v1.75.2-linux-amd64.zip
+          sudo install rclone-v1.75.2-linux-amd64/rclone /usr/local/bin/rclone
+          rclone version
       - name: Build the hosted site
         run: python3 build.py --site
       - name: Upload the assets first
         # copy never deletes, so anything else in the bucket is left alone
         run: |
           rclone copy dist/site/learn-korean "r2:$R2_BUCKET/learn-korean" \
+            --ignore-times \
             --header-upload "Cache-Control: public, max-age=31536000, immutable"
       - name: Upload the entry page last
         run: |
           rclone copyto dist/site/learn-korean.html "r2:$R2_BUCKET/learn-korean.html" \
+            --ignore-times \
             --header-upload "Cache-Control: no-cache" \
             --header-upload "Content-Type: text/html; charset=utf-8"
+      - name: Check the stored cache headers
+        # rclone copy skips files that look unchanged, so a missing header on an old object
+        # would stay missing. Read the headers back and fail if any are wrong.
+        run: |
+          rclone lsjson -M -R "r2:$R2_BUCKET/learn-korean" > stored.json
+          rclone lsjson -M "r2:$R2_BUCKET/learn-korean.html" > entry.json
+          python3 - <<'PY'
+          import json, os, sys
+          # Only the files in this build. Older objects that nothing links to are not checked.
+          built = set()
+          for root, _, files in os.walk("dist/site/learn-korean"):
+              for name in files:
+                  built.add(os.path.relpath(os.path.join(root, name), "dist/site/learn-korean"))
+          stored = {item["Path"]: item for item in json.load(open("stored.json")) if not item["IsDir"]}
+          bad = []
+          for path in sorted(built):
+              item = stored.get(path)
+              cc = ((item or {}).get("Metadata") or {}).get("cache-control", "")
+              if item is None:
+                  bad.append(f"learn-korean/{path}: missing from R2")
+              elif "immutable" not in cc:
+                  bad.append(f"learn-korean/{path}: {cc or 'no header'}")
+          for item in json.load(open("entry.json")):
+              cc = (item.get("Metadata") or {}).get("cache-control", "")
+              if "no-cache" not in cc:
+                  bad.append(f"learn-korean.html: {cc or 'no header'}")
+          if bad:
+              print("\n".join(bad[:20]))
+              print(f"{len(bad)} object(s) have the wrong cache-control")
+              sys.exit(1)
+          print("every stored object has the expected cache-control")
+          PY
       - name: Check the stored entry page matches the build
         # Read from R2, not the public URL: Cloudflare injects a script into HTML served
         # on the adorio.space zone, so the public copy never matches the build byte for byte.
