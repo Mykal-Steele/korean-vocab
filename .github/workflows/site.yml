@@ -88,7 +88,8 @@ jobs:
   deploy:
     name: Upload to R2
     needs: check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # always() stops the skipped audio job from skipping this job too
+    if: ${{ always() && needs.check.result == 'success' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     # The production environment holds the R2 keys and requires a reviewer to approve each deploy.
     environment: production
