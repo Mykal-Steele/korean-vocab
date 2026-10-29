@@ -49,14 +49,41 @@ order.
 
 ## Running it
 
-No build step and no dependencies:
+Open the source files directly, or serve them:
 
 ```sh
 python3 -m http.server 8000
 # then open http://localhost:8000
 ```
 
+To see the hosted layout at the same URLs adorio.space uses:
+
+```sh
+python3 tools/serve.py
+# then open http://localhost:8000/learn-korean
+```
+
 `index.html` also opens directly from disk over `file://`.
+
+## Contributing
+
+1. Fork the repo, or ask the owner for write access to push a branch here.
+2. Make your change on a branch and open a PR against `main`. The first run from a new fork
+   may wait for the owner to approve it in the Actions tab.
+3. Run the checks before you push:
+
+   ```sh
+   node tools/check-data.js
+   python3 -m unittest discover -s tests -v
+   python3 build.py --site
+   ```
+
+4. Audio: CI renders clips for new words on PRs from branches in this repo. Fork PRs don't get
+   that step, so new words have no clip. The page still works and falls back to the browser's
+   voice. To add real clips, run `tools/build-audio.py` yourself (see [Audio](#audio)) and
+   commit the files.
+5. A PR needs one approving review from someone other than its author before it can merge.
+   Merging to `main` deploys the live page right away.
 
 ## Layout
 
