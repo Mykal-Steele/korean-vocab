@@ -80,6 +80,8 @@ jobs:
           python-version: "3.12"
       - name: Validate the word data
         run: node tools/check-data.js
+      - name: Install the test dependencies
+        run: python3 -m pip install pyyaml
       - name: Run the tests
         run: python3 -m unittest discover -s tests -v
       - name: Build the hosted site and the artifact copy

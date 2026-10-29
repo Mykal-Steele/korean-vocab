@@ -56,6 +56,19 @@ const seenGloss = new Map();
 WORDS.forEach((word, i) => {
   const where = `WORDS[${i}] ${word.ko || '(no ko)'}`;
 
+  // A backslash in a string literal is an escape, so the page shows different text than the
+  // file says. Write apostrophes as ’ or as \' once, and check the value, not the source.
+  const texts = [
+    ['ko', word.ko], ['rom', word.rom], ['en', word.en], ['th', word.th],
+    ['example.ko', word.example?.ko], ['example.en', word.example?.en],
+    ...(word.accept || []).map((a) => ['accept', a]),
+  ];
+  for (const [field, text] of texts) {
+    if (typeof text === 'string' && text.includes('\\')) {
+      note(where, `${field} contains a backslash (${text}); the page would show it`);
+    }
+  }
+
   for (const key of ['ko', 'rom', 'en', 'th', 'category']) {
     if (typeof word[key] !== 'string' || !word[key].trim()) note(where, `missing ${key}`);
   }
