@@ -1,0 +1,146 @@
+name: Site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Renders audio for words that have no clip yet, and commits the result to the
+  # PR branch. Only same-repo branches: a fork cannot be pushed to from here.
+  audio:
+    name: Render missing audio
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the speech tools
+        run: |
+          python3 -m venv "$RUNNER_TEMP/tts"
+          "$RUNNER_TEMP/tts/bin/pip" install gTTS==2.5.4 piper-tts==1.8.0
+      - name: Fetch the English voice
+        run: |
+          mkdir -p "$RUNNER_TEMP/piper"
+          base=https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium
+          curl -fsSL -o "$RUNNER_TEMP/piper/en.onnx" "$base/en_US-lessac-medium.onnx"
+          curl -fsSL -o "$RUNNER_TEMP/piper/en.onnx.json" "$base/en_US-lessac-medium.onnx.json"
+      - name: Render the clips that are missing
+        run: |
+          "$RUNNER_TEMP/tts/bin/python" tools/build-audio.py \
+            --piper "$RUNNER_TEMP/tts/bin/python" \
+            --en-model "$RUNNER_TEMP/piper/en.onnx" \
+            --en-config "$RUNNER_TEMP/piper/en.onnx.json" \
+            --gtts "$RUNNER_TEMP/tts/bin/python"
+      - name: Commit and push the new clips
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/audio assets/js/audio.js
+          if git diff --cached --quiet; then
+            echo "no new clips to commit"
+            exit 0
+          fi
+          git commit -m "Render audio for new words"
+          git push origin "HEAD:$HEAD_REF"
+
+  check:
+    name: Check and build
+    needs: [audio]
+    if: ${{ always() && needs.audio.result != 'failure' && needs.audio.result != 'cancelled' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # After the audio job pushes, check the new commit on the branch, not the old one.
+          ref: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.head_ref || github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate the word data
+        run: node tools/check-data.js
+      - name: Run the tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Build the hosted site and the artifact copy
+        run: |
+          python3 build.py --site
+          python3 build.py
+
+  deploy:
+    name: Upload to R2
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # The production environment holds the R2 keys and requires a reviewer to approve each deploy.
+    environment: production
+    concurrency:
+      group: deploy-site
+      cancel-in-progress: false
+    env:
+      R2_BUCKET: adorio-hosted
+      RCLONE_CONFIG_R2_TYPE: s3
+      RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+      RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
+      RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      RCLONE_CONFIG_R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install rclone
+        run: sudo apt-get update && sudo apt-get install -y rclone
+      - name: Build the hosted site
+        run: python3 build.py --site
+      - name: Upload the assets first
+        # copy never deletes, so anything else in the bucket is left alone
+        run: |
+          rclone copy dist/site/learn-korean "r2:$R2_BUCKET/learn-korean" \
+            --header-upload "Cache-Control: public, max-age=31536000, immutable"
+      - name: Upload the entry page last
+        run: |
+          rclone copyto dist/site/learn-korean.html "r2:$R2_BUCKET/learn-korean.html" \
+            --header-upload "Cache-Control: no-cache" \
+            --header-upload "Content-Type: text/html; charset=utf-8"
+      - name: Check the live entry page matches the build
+        run: |
+          expected=$(sha256sum dist/site/learn-korean.html | cut -d' ' -f1)
+          for attempt in 1 2 3 4 5 6; do
+            actual=$(curl -sfS https://files.adorio.space/learn-korean.html | sha256sum | cut -d' ' -f1)
+            if [ "$actual" = "$expected" ]; then
+              echo "live entry page matches the build"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "live entry page does not match the build" >&2
+          exit 1
+      - name: Check one script and one clip are reachable
+        run: |
+          script=$(ls dist/site/learn-korean/js/app.*.js | head -1)
+          clip=$(ls dist/site/learn-korean/audio/*.mp3 | head -1)
+          curl -sfS -o /dev/null "https://files.adorio.space/learn-korean/${script#dist/site/learn-korean/}"
+          curl -sfS -o /dev/null "https://files.adorio.space/learn-korean/${clip#dist/site/learn-korean/}"
