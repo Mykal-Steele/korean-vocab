@@ -68,5 +68,38 @@ class WordsKeepTheHandoutText(unittest.TestCase):
         self.assertEqual(self.word("저녁 식사하다")["say"], "저녁 식싸하다")
 
 
+# The English glosses exactly as the class handout writes them.
+HANDOUT_EN = {
+    "오전": "morning / a.m.(7-11:59)",
+    "오후": "afternoon / p.m.(1-5)",
+    "아침": "Morning(7-11:59)",
+    "점심": "lunch / noon(12)",
+    "저녁": "Evening(6-8)",
+    "밤": "Night(9-11:59)",
+    "시": "hour / o’clock",
+    "분": "minute",
+    "공부하다": "to study",
+    "세수하다": "to wash one’s face",
+    "쇼핑하다": "to go shopping",
+    "숙제하다": "to do homework",
+    "운동하다": "to exercise",
+    "이야기하다": "to talk / to chat",
+    "일하다": "to work",
+    "전화하다": "to make a phone call",
+    "아침 식사하다": "to have breakfast",
+    "점심 식사하다": "to have lunch",
+    "저녁 식사하다": "to have dinner",
+    "(장소)에 가다": "to go (to a place)",
+}
+
+
+class EnglishMatchesTheHandout(unittest.TestCase):
+    def test_every_handout_gloss_is_exact(self):
+        for ko, en in HANDOUT_EN.items():
+            words = node(f"WORDS.filter((w) => w.ko === {json.dumps(ko, ensure_ascii=False)})")
+            self.assertEqual(len(words), 1, f"expected one word for {ko}")
+            self.assertEqual(words[0]["en"], en, ko)
+
+
 if __name__ == "__main__":
     unittest.main()
