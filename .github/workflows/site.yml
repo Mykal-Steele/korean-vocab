@@ -126,19 +126,17 @@ jobs:
           rclone copyto dist/site/learn-korean.html "r2:$R2_BUCKET/learn-korean.html" \
             --header-upload "Cache-Control: no-cache" \
             --header-upload "Content-Type: text/html; charset=utf-8"
-      - name: Check the live entry page matches the build
+      - name: Check the stored entry page matches the build
+        # Read from R2, not the public URL: Cloudflare injects a script into HTML served
+        # on the adorio.space zone, so the public copy never matches the build byte for byte.
         run: |
           expected=$(sha256sum dist/site/learn-korean.html | cut -d' ' -f1)
-          for attempt in 1 2 3 4 5 6; do
-            actual=$(curl -sfS https://files.adorio.space/learn-korean.html | sha256sum | cut -d' ' -f1)
-            if [ "$actual" = "$expected" ]; then
-              echo "live entry page matches the build"
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "live entry page does not match the build" >&2
-          exit 1
+          actual=$(rclone cat "r2:$R2_BUCKET/learn-korean.html" | sha256sum | cut -d' ' -f1)
+          if [ "$actual" != "$expected" ]; then
+            echo "stored entry page does not match the build" >&2
+            exit 1
+          fi
+          echo "stored entry page matches the build"
       - name: Check one script and one clip are reachable
         run: |
           script=$(ls dist/site/learn-korean/js/app.*.js | head -1)
