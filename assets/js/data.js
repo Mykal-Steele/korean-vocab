@@ -578,25 +578,25 @@ const WORDS = [
     example: { ko: '친구에게 전화해요.', en: 'I call my friend.' }
   },
   {
-    ko: '아침식사하다', rom: 'achimsiksahada', syl: ['a', 'chim', 'sik', 'sa', 'ha', 'da'], say: '아침식싸하다',
+    ko: '아침 식사하다', rom: 'achim siksahada', syl: ['a', 'chim', 'sik', 'sa', 'ha', 'da'], say: '아침 식싸하다',
     accept: ['have breakfast', 'eat breakfast'],
     en: 'To have breakfast', th: 'กินอาหารเช้า', category: 'haengdong',
     example: { ko: '아침에 빵을 먹어요.', en: 'I eat bread in the morning.' }
   },
   {
-    ko: '점심식사하다', rom: 'jeomsimsiksahada', syl: ['jeom', 'sim', 'sik', 'sa', 'ha', 'da'], say: '점심식싸하다',
+    ko: '점심 식사하다', rom: 'jeomsim siksahada', syl: ['jeom', 'sim', 'sik', 'sa', 'ha', 'da'], say: '점심 식싸하다',
     accept: ['have lunch', 'eat lunch'],
     en: 'To have lunch', th: 'กินอาหารเที่ยง', category: 'haengdong',
     example: { ko: '점심에 친구와 식사해요.', en: 'I eat lunch with a friend.' }
   },
   {
-    ko: '저녁식사하다', rom: 'jeonyeoksiksahada', syl: ['jeo', 'nyeok', 'sik', 'sa', 'ha', 'da'], say: '저녁식싸하다',
+    ko: '저녁 식사하다', rom: 'jeonyeok siksahada', syl: ['jeo', 'nyeok', 'sik', 'sa', 'ha', 'da'], say: '저녁 식싸하다',
     accept: ['have dinner', 'eat dinner'],
     en: 'To have dinner', th: 'กินอาหารเย็น', category: 'haengdong',
     example: { ko: '저녁에 가족과 식사해요.', en: 'I have dinner with my family.' }
   },
   {
-    ko: '가다', rom: 'gada', syl: ['ga', 'da'],
+    ko: '(장소)에 가다', rom: 'jangso-e gada', syl: ['jang', 'so', 'e', 'ga', 'da'],
     accept: ['go', 'go to', 'go to a place'],
     en: 'To go (to a place)', th: 'ไป', category: 'haengdong',
     example: { ko: '학교에 가요.', en: 'I go to school.' }

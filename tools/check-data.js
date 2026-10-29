@@ -74,10 +74,12 @@ WORDS.forEach((word, i) => {
   }
   if (!ids.has(word.category)) note(where, `unknown category ${word.category}`);
 
-  const syllables = [...(word.ko || '')];
-  if (!syllables.length || !syllables.every((c) => c.codePointAt(0) >= HANGUL_START
-      && c.codePointAt(0) <= HANGUL_END)) {
-    note(where, 'ko must be a bare run of Hangul syllables');
+  // Spaces and brackets come from the handout and are shown as written. Only the Hangul
+  // syllables get a pad, a romanization label and a stroke check.
+  const isHangul = (c) => c.codePointAt(0) >= HANGUL_START && c.codePointAt(0) <= HANGUL_END;
+  const syllables = [...(word.ko || '')].filter(isHangul);
+  if (!syllables.length || [...(word.ko || '')].some((c) => !isHangul(c) && !' ()'.includes(c))) {
+    note(where, 'ko may only contain Hangul syllables, spaces and brackets');
   }
 
   if (seenKo.has(word.ko)) note(where, `duplicate of WORDS[${seenKo.get(word.ko)}]`);
@@ -97,7 +99,7 @@ WORDS.forEach((word, i) => {
   }
 
   if (word.say !== undefined) {
-    const said = [...word.say];
+    const said = [...word.say].filter(isHangul);
     if (said.length !== syllables.length) {
       note(where, `say "${word.say}" has ${said.length} syllables, ko has ${syllables.length}`);
     }

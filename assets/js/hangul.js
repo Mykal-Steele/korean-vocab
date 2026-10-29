@@ -209,7 +209,15 @@ const Hangul = (() => {
     return [parts.cho, parts.jung, parts.jong].filter(Boolean).join(' + ');
   }
 
-  return { decompose, strokesFor, spell, SIZE: 100 };
+  /** The Hangul syllables in a word, in order. Spaces and brackets are left out. */
+  function syllablesOf(text) {
+    return [...text].filter((c) => {
+      const code = c.codePointAt(0);
+      return code >= 0xac00 && code <= 0xd7a3;
+    });
+  }
+
+  return { decompose, strokesFor, spell, syllablesOf, SIZE: 100 };
 })();
 
 /**
