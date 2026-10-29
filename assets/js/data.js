@@ -520,7 +520,7 @@ const WORDS = [
   {
     ko: '시', rom: 'si', syl: ['si'],
     accept: ['hour', 'oclock', 'o\'clock', 'hours'],
-    en: 'O\'clock', th: 'โมง', category: 'sigan',
+    en: 'O’clock', th: 'โมง', category: 'sigan',
     example: { ko: '세 시에 만나요.', en: 'Let us meet at three o\'clock.' }
   },
   {
@@ -538,7 +538,7 @@ const WORDS = [
   {
     ko: '세수하다', rom: 'sesuhada', syl: ['se', 'su', 'ha', 'da'],
     accept: ['wash face', 'wash your face'],
-    en: 'To wash one\\\'s face', th: 'ล้างหน้า', category: 'haengdong',
+    en: 'To wash one’s face', th: 'ล้างหน้า', category: 'haengdong',
     example: { ko: '아침에 세수해요.', en: 'I wash my face in the morning.' }
   },
   {
