@@ -1,0 +1,1208 @@
+/* =========================================================================
+   Hangul Study Deck
+   1. Tokens
+   2. Reset & base
+   3. Layout primitives
+   4. Masthead
+   5. Toolbar & filters
+   6. Deck & cards
+   7. Dialogs
+   8. Study view & stroke stage
+   9. Practice
+   10. Utilities, motion, print
+   ========================================================================= */
+
+/* ------------------------------------------------------------ 1. Tokens */
+:root {
+  /* IBM Plex is drawn as a multi-script institutional family, which is the right
+     register for a bilingual worksheet; Noto covers Hangul and Thai in the same
+     humanist key. The serif appears on page titles only. */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "IBM Plex Serif", ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-ko: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Nanum Gothic", sans-serif;
+  --font-th: "Noto Sans Thai", "Leelawadee UI", "Thonburi", sans-serif;
+
+  --step--1: clamp(0.78rem, 0.76rem + 0.1vw, 0.83rem);
+  --step-0: clamp(0.925rem, 0.9rem + 0.12vw, 1rem);
+  --step-1: clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
+  --step-2: clamp(1.3rem, 1.18rem + 0.5vw, 1.65rem);
+  --step-3: clamp(1.7rem, 1.45rem + 1.1vw, 2.5rem);
+
+  --radius: 8px;
+  --radius-sm: 5px;
+  --gutter: clamp(1rem, 0.6rem + 1.8vw, 2.25rem);
+  --measure: 68ch;
+  --shell: 1180px;
+
+  --ease: cubic-bezier(0.4, 0.14, 0.3, 1);
+  --speed: 160ms;
+}
+
+/* Dark is the default and the designed-for theme. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121110;
+  --bg-deep: #0b0a09;
+  --surface: #1a1917;
+  --surface-2: #21201d;
+  --surface-3: #2a2825;
+  --line: #33302c;
+  --line-strong: #4a453e;
+  --ink: #edeae4;
+  --ink-2: #b8b2a8;
+  --ink-3: #8a847a;
+  --accent: #c9a227;
+  --accent-ink: #17150f;
+  --accent-soft: rgba(201, 162, 39, 0.13);
+  --accent-line: rgba(201, 162, 39, 0.42);
+  --positive: #6faa7c;
+  --negative: #cf7565;
+  --stroke-done: #edeae4;
+  --stroke-ghost: #34312c;
+  --pad-ink: #edeae4;
+  --pad-guide: #3a362f;
+  --pad-grid: #33302c;
+  --shadow: 0 18px 48px -24px rgba(0, 0, 0, 0.9);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f7f6f3;
+  --bg-deep: #edebe6;
+  --surface: #ffffff;
+  --surface-2: #f4f2ee;
+  --surface-3: #e9e6e0;
+  --line: #dcd8d0;
+  --line-strong: #bfb9ae;
+  --ink: #1b1a17;
+  --ink-2: #4f4c46;
+  --ink-3: #74706a;
+  --accent: #86690e;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(134, 105, 14, 0.1);
+  --accent-line: rgba(134, 105, 14, 0.35);
+  --positive: #2f7a4d;
+  --negative: #a8382c;
+  --stroke-done: #1b1a17;
+  --stroke-ghost: #ddd9d1;
+  --pad-ink: #1b1a17;
+  --pad-guide: #d6d1c7;
+  --pad-grid: #e2ded6;
+  --shadow: 0 18px 48px -28px rgba(0, 0, 0, 0.35);
+}
+
+/* ------------------------------------------------------- 2. Reset & base */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Components below set an explicit `display`, which would otherwise win over
+   the user-agent rule for [hidden]. Keep the attribute authoritative. */
+[hidden] { display: none !important; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 { margin: 0; font-weight: 600; line-height: 1.22; letter-spacing: -0.015em; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; }
+img, svg { display: block; max-width: 100%; }
+
+:lang(ko) { font-family: var(--font-ko); }
+:lang(th) { font-family: var(--font-th); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+::selection { background: var(--accent-soft); color: var(--ink); }
+
+/* ------------------------------------------------ 3. Layout primitives */
+.wrap {
+  width: min(100% - (var(--gutter) * 2), var(--shell));
+  margin-inline: auto;
+  min-width: 0;
+}
+
+/* Flex and grid children default to min-content width, which is what makes long
+   words and wide rows escape their container. Opt every layout child out. */
+.card > *, .set__head > *, .toolbar > *, .controls__group > *,
+.colophon__inner > *, .study__ident > *, .drill__head > * { min-width: 0; }
+
+.card__rom, .card__en, .card__th, .example__ko, .example__en,
+.study__glosses dd, .set__en, .intro__lead { overflow-wrap: anywhere; }
+
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -4rem;
+  z-index: 50;
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  transition: top var(--speed) var(--ease);
+}
+.skip-link:focus { top: 0.75rem; }
+
+/* Buttons ---------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.4rem;
+  padding: 0.42rem 0.9rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  cursor: pointer;
+  transition: background var(--speed) var(--ease), border-color var(--speed) var(--ease), color var(--speed) var(--ease);
+}
+.btn:hover:not([disabled]) { background: var(--surface-3); border-color: var(--ink-3); }
+.btn:active { transform: translateY(0.5px); }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+.btn--primary:hover:not([disabled]) { background: color-mix(in srgb, var(--accent) 86%, #fff); border-color: transparent; }
+
+.btn--ghost { background: transparent; border-color: var(--line); color: var(--ink-2); }
+.btn--ghost:hover { background: var(--surface-2); color: var(--ink); }
+
+.btn--block { width: 100%; }
+
+.btn--mark[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  color: var(--accent);
+}
+.btn--mark[aria-pressed="true"]::before { content: "\2713"; font-weight: 700; }
+
+.linkbtn {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: var(--step--1);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.linkbtn:hover { color: var(--ink); }
+
+/* ---------------------------------------------------------- 4. Masthead */
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: saturate(140%) blur(8px);
+}
+
+.masthead__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  flex-wrap: wrap;
+  min-height: 4rem;
+  padding-block: 0.6rem;
+}
+.brand { flex: 1 1 auto; }
+.tabs { flex: 0 0 auto; }
+.masthead__actions { flex: 0 0 auto; margin-left: auto; }
+
+@media (max-width: 48rem) {
+  /* Below this the three regions cannot share a line without clipping. */
+  .tabs { order: 3; flex: 1 0 100%; margin-inline: 0; justify-content: stretch; }
+  .tab { flex: 1; text-align: center; }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--speed) var(--ease);
+}
+.brand:hover, .brand:focus-visible { opacity: 0.8; }
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  flex: none;
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-ko);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.brand__text { display: flex; flex-direction: column; min-width: 0; }
+.brand__name { font-size: var(--step-0); font-weight: 600; letter-spacing: -0.01em; }
+.brand__sub { font-size: var(--step--1); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.masthead__actions { display: flex; align-items: center; gap: 0.5rem; }
+
+@media (max-width: 34rem) {
+  .brand__sub { display: none; }
+  #help-open .btn__label { display: none; }
+}
+
+/* ------------------------------------------------ 5. Intro & toolbar */
+.intro {
+  padding-block: clamp(2rem, 1rem + 4vw, 3.5rem) 1.5rem;
+  max-width: var(--measure);
+}
+.intro__title {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.intro__lead { margin-top: 0.75rem; color: var(--ink-2); font-size: var(--step-1); line-height: 1.55; }
+
+.toolbar {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 1.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  grid-template-columns: minmax(15rem, 22rem) 1fr auto;
+  align-items: end;
+}
+@media (max-width: 62rem) {
+  .toolbar { grid-template-columns: 1fr; align-items: stretch; }
+}
+
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+.field__label {
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.field__input {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-deep);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--step-0);
+}
+.field__input::placeholder { color: var(--ink-3); }
+.field__input:focus-visible { outline-offset: 1px; border-color: var(--accent); }
+
+.filters { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.chip {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 100%;
+  transition: background var(--speed) var(--ease), color var(--speed) var(--ease), border-color var(--speed) var(--ease);
+}
+/* A set name can outgrow a narrow phone once it says which number system it is
+   ("한자어 숫자 · Sino-Korean numbers"), and a nowrap chip has no way to give.
+   Let it wrap down there, breaking at spaces rather than between Hangul blocks. */
+@media (max-width: 22rem) {
+  .chip { white-space: normal; word-break: keep-all; text-align: left; }
+}
+
+.chip:hover { border-color: var(--ink-3); color: var(--ink); }
+.chip.is-selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.progress { display: grid; gap: 0.35rem; justify-items: start; min-width: 12rem; }
+.progress__bar {
+  width: 100%;
+  height: 5px;
+  border-radius: 100px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.progress__fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width 280ms var(--ease);
+}
+.progress__text { font-size: var(--step--1); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+/* --------------------------------------------------- 6. Deck & cards */
+.set { margin-bottom: 2.5rem; }
+.set__head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.65rem;
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.1rem;
+  border-bottom: 1px solid var(--line);
+}
+.set__ko { font-family: var(--font-ko); font-size: var(--step-2); font-weight: 700; letter-spacing: -0.02em; }
+.set__en { font-size: var(--step-0); color: var(--ink-2); }
+.set__count {
+  margin-left: auto;
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(15.5rem, 100%), 1fr));
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  transition: border-color var(--speed) var(--ease), background var(--speed) var(--ease), transform var(--speed) var(--ease);
+}
+.card:hover { border-color: var(--line-strong); background: var(--surface-2); }
+.card:hover .card__hangul { color: var(--accent); }
+.card:focus-within { border-color: var(--accent-line); }
+
+.card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+
+.card__hangul {
+  font-family: var(--font-ko);
+  font-size: clamp(1.85rem, 1.5rem + 1.4vw, 2.35rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  transition: color var(--speed) var(--ease);
+}
+
+.card__rom {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  letter-spacing: 0.01em;
+}
+.card__rom .say { color: var(--accent); }
+
+.card__en { font-size: var(--step-0); font-weight: 500; color: var(--ink); }
+.card__th { font-family: var(--font-th); font-size: var(--step-0); color: var(--ink-2); line-height: 1.45; }
+
+.card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+}
+.card__tag {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.card__tools { display: flex; gap: 0.3rem; }
+
+.iconbtn {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background var(--speed) var(--ease), color var(--speed) var(--ease), border-color var(--speed) var(--ease);
+}
+.iconbtn:hover { background: var(--surface-3); color: var(--accent); border-color: var(--line-strong); }
+.iconbtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.iconbtn[aria-pressed="true"] { color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft); }
+
+.card.is-learned { border-left: 3px solid var(--accent); }
+.card.is-learned .card__tag { color: var(--accent); }
+
+.empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--ink-3);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+/* ---------------------------------------------------------- 7. Dialogs */
+.sheet {
+  width: min(100% - 1.5rem, 60rem);
+  max-height: min(92dvh, 60rem);
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.sheet--narrow { width: min(100% - 1.5rem, 34rem); }
+.sheet::backdrop { background: rgba(6, 8, 9, 0.66); backdrop-filter: blur(2px); }
+
+.sheet__close-form { position: sticky; top: 0; z-index: 3; height: 0; }
+.sheet__close {
+  position: absolute;
+  right: 0.7rem;
+  top: 0.7rem;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.sheet__close:hover { background: var(--surface-3); color: var(--ink); }
+
+.sheet__body {
+  max-height: min(92dvh, 60rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(1.15rem, 0.8rem + 1.4vw, 2rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+}
+.sheet__body > * { min-width: 0; }
+
+/* -------------------------------------------- 8. Study view & stage */
+.study__head {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: start;
+  padding-right: 2.5rem;
+}
+@media (max-width: 46rem) { .study__head { grid-template-columns: 1fr; } }
+
+.study__eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.study__word {
+  font-family: var(--font-ko);
+  font-size: var(--step-3);
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  margin-top: 0.2rem;
+}
+.study__rom { margin-top: 0.25rem; font-family: var(--font-mono); font-size: var(--step-0); color: var(--ink-3); }
+.study__say { color: var(--accent); }
+.study__say:not(:empty)::before { content: " \00b7 "; color: var(--ink-3); }
+
+.study__glosses { display: grid; gap: 0.6rem; margin: 0; }
+.study__glosses > div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line);
+}
+.study__glosses > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.study__glosses dt {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.study__glosses dd { margin: 0; font-size: var(--step-0); }
+.mono { font-family: var(--font-mono); letter-spacing: 0.06em; }
+
+.study__block {
+  padding: 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-deep);
+}
+.study__block h3, .pads__title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.stage__head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.25rem 1rem; flex-wrap: wrap; min-width: 0; }
+.stage__status { font-size: var(--step--1); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+.syllables {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 1.1rem 0;
+}
+
+.syl { display: grid; gap: 0.4rem; justify-items: center; }
+
+.syl__btn {
+  display: block;
+  padding: 0;
+  width: clamp(4.6rem, 22vw, 9.5rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color var(--speed) var(--ease);
+}
+.syl__btn:hover { border-color: var(--accent-line); }
+
+.glyph { width: 100%; height: auto; display: block; }
+
+.glyph__frame { fill: none; stroke: var(--line); stroke-width: 0.7; }
+.glyph__guide { stroke: var(--line); stroke-width: 0.6; stroke-dasharray: 2.5 3.5; }
+.glyph.no-grid .glyph__guides { display: none; }
+
+.ghost {
+  fill: none;
+  stroke: var(--stroke-ghost);
+  stroke-width: 7.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.glyph.no-ghost .glyph__ghost { display: none; }
+
+.stroke {
+  fill: none;
+  stroke: var(--stroke-done);
+  stroke-width: 7.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.stroke.is-active { stroke: var(--accent); }
+
+.mark__dot { fill: var(--accent); }
+.mark__dot--outline { fill: none; stroke: var(--bg-deep); stroke-width: 1.2; }
+.mark__label {
+  fill: var(--accent-ink);
+  font-family: var(--font-mono);
+  font-size: 6.6px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+.glyph.no-marks .glyph__marks { display: none; }
+
+.syl__rom {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-3);
+}
+
+.controls { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; min-width: 0; }
+.controls__group { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.controls__group--toggles { gap: 0.9rem; }
+
+.hint { font-size: var(--step--1); color: var(--ink-3); }
+
+.range { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; min-width: 0; }
+.range__label { font-size: var(--step--1); color: var(--ink-3); }
+.range input[type="range"] { flex: 1 1 5rem; width: 7.5rem; min-width: 4rem; max-width: 9rem; accent-color: var(--accent); }
+.range__value { font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-2); min-width: 2.6rem; }
+
+.switch { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--step--1); color: var(--ink-2); cursor: pointer; }
+.switch input { accent-color: var(--accent); width: 0.95rem; height: 0.95rem; }
+
+.example__ko { font-family: var(--font-ko); font-size: var(--step-1); margin: 0.6rem 0 0.2rem; }
+.example__en { color: var(--ink-2); font-size: var(--step--1); margin-bottom: 0.8rem; }
+
+.study__foot {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding-top: 0.25rem;
+}
+
+/* -------------------------------------------------------- 9. Practice */
+.page { min-width: 0; }
+
+.tabs { display: flex; gap: 0.25rem; margin-inline: auto; }
+.tab {
+  padding: 0.45rem 0.95rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  font-size: var(--step--1);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--speed) var(--ease), color var(--speed) var(--ease);
+}
+.tab:hover { background: var(--surface-2); color: var(--ink); }
+.tab.is-current {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.panel {
+  padding: clamp(1rem, 0.7rem + 1.2vw, 1.75rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin-bottom: 1.5rem;
+  min-width: 0;
+}
+.panel--center { text-align: center; display: grid; gap: 0.9rem; justify-items: center; }
+
+.setup { display: grid; gap: 1rem; }
+.setup__note { margin: 0.9rem 0 1.1rem; font-size: var(--step--1); color: var(--ink-3); max-width: var(--measure); }
+
+.fieldset {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem;
+  margin: 0;
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.fieldset legend {
+  padding: 0 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.fieldset__step {
+  display: inline-block;
+  width: 1.15rem;
+  line-height: 1.15rem;
+  margin-right: 0.4rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.66rem;
+  letter-spacing: 0;
+  text-align: center;
+}
+/* Two columns at most, so a five-option list reads as a block rather than a
+   row of three and a widow. An explicit breakpoint rather than auto-fit with a
+   minmax floor: inside a grid being sized to min-content the percentage in
+   `min(20rem, 100%)` has nothing to resolve against, so the track floors at
+   20rem and the whole panel stops shrinking on a phone. */
+.fieldset__options {
+  display: grid;
+  gap: 0.15rem;
+  max-width: 46rem;
+}
+@media (min-width: 40rem) {
+  .fieldset__options { grid-template-columns: 1fr 1fr; }
+}
+
+/* The master toggle governs the sets under it, so it sits on its own line above
+   them rather than reading as a sixth choice in the grid. */
+.radio--all { border-bottom: 1px solid var(--line); border-radius: 0; margin-bottom: 0.2rem; }
+@media (min-width: 40rem) { .radio--all { grid-column: 1 / -1; } }
+
+.fieldset__summary {
+  margin: 0.5rem 0 0;
+  padding-left: 0.5rem;
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  word-break: keep-all;
+}
+
+.radio { display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.5rem; border-radius: var(--radius-sm); cursor: pointer; }
+.radio:hover { background: var(--surface-2); }
+.radio input { margin-top: 0.3rem; accent-color: var(--accent); flex: none; }
+/* Direct child only: the label also holds inline spans marking up Korean
+   runs, and making those grid items breaks the line after the arrow. */
+.radio > span { display: grid; gap: 0.1rem; min-width: 0; }
+/* Korean breaks between any two syllables by default, which strands a single
+   block on its own line mid-word. Keep-all breaks at spaces instead. */
+.radio strong, .radio small { word-break: keep-all; }
+.radio small { color: var(--ink-3); font-size: var(--step--1); }
+.radio em { color: var(--ink-2); font-style: normal; font-weight: 500; }
+
+.drill__head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.drill__meter { flex: 1 1 12rem; display: grid; gap: 0.35rem; min-width: 0; }
+.drill__count { font-size: var(--step--1); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+.drill {
+  display: grid;
+  gap: clamp(1.25rem, 0.8rem + 1.8vw, 2.25rem);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: start;
+}
+@media (max-width: 56rem) { .drill { grid-template-columns: minmax(0, 1fr); } }
+
+.drill__ask, .drill__write { min-width: 0; }
+
+.drill__label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.drill__prompt {
+  margin: 0.35rem 0 0.9rem;
+  font-size: var(--step-2);
+  font-weight: 500;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.drill__prompt.is-ko {
+  font-family: var(--font-ko);
+  font-size: clamp(2.1rem, 1.6rem + 2.4vw, 3.1rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.btn--audio::before {
+  content: "";
+  width: 0.85rem; height: 0.85rem;
+  flex: none;
+  background: currentColor;
+  clip-path: polygon(0 33%, 28% 33%, 55% 5%, 55% 95%, 28% 67%, 0 67%);
+}
+
+/* Listening mode has no written prompt, so the play button carries the
+   question and is sized to say so. */
+.btn--listen {
+  margin-top: 0.9rem;
+  padding: 0.8rem 1.35rem;
+  font-size: var(--step-1);
+  border-radius: var(--radius);
+}
+.btn--listen::before { width: 1.05rem; height: 1.05rem; }
+
+.answer { display: grid; gap: 0.5rem; margin-top: 1.1rem; }
+.field__input--answer { font-size: var(--step-1); min-height: 3rem; }
+.field__input--answer:lang(ko) { font-family: var(--font-ko); }
+.answer__hint { font-size: var(--step--1); color: var(--ink-3); overflow-wrap: anywhere; }
+.answer__actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.35rem; }
+
+/* On-screen 두벌식 keyboard ------------------------------------------- */
+.keyboard {
+  margin-top: 0.5rem;
+  padding: 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-deep);
+  min-width: 0;
+}
+.keyboard__head { display: grid; gap: 0.15rem; margin-bottom: 0.6rem; }
+.keyboard__title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.keyboard__note { font-size: var(--step--1); color: var(--ink-3); }
+.keyboard__rows { display: grid; gap: 0.3rem; }
+.keyboard__row { display: flex; gap: 0.3rem; justify-content: center; flex-wrap: wrap; }
+
+.key {
+  flex: 1 1 1.9rem;
+  min-width: 1.9rem;
+  max-width: 3.1rem;
+  min-height: 2.4rem;
+  padding: 0.3rem 0.2rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+  font-family: var(--font-ko);
+  font-size: var(--step-0);
+  cursor: pointer;
+  transition: background var(--speed) var(--ease), border-color var(--speed) var(--ease);
+}
+.key:hover { background: var(--surface-3); border-color: var(--accent-line); }
+.key:active { background: var(--accent-soft); }
+.key--wide { flex: 1 1 3.4rem; max-width: 5rem; font-family: var(--font-sans); font-size: var(--step--1); }
+.key--space { flex: 3 1 8rem; max-width: none; font-family: var(--font-sans); font-size: var(--step--1); }
+.key.is-on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+
+/* Verdict -------------------------------------------------------------- */
+.verdict { display: grid; gap: 0.9rem; margin-top: 1.1rem; justify-items: start; }
+.verdict__facts { width: 100%; }
+.verdict__line { font-size: var(--step-1); font-weight: 600; }
+.verdict__line.is-correct { color: var(--positive); }
+.verdict__line.is-wrong { color: var(--negative); }
+.verdict__line.is-neutral { color: var(--ink-2); }
+
+.verdict__facts { display: grid; gap: 0.55rem; margin: 0; }
+.verdict__facts > div {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--line);
+}
+.verdict__facts > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.verdict__facts dt {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.verdict__facts dd { margin: 0; overflow-wrap: anywhere; }
+.verdict__ko {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ko);
+  font-size: var(--step-2);
+  font-weight: 700;
+}
+
+/* Handwriting pads ----------------------------------------------------- */
+.pads__head { display: grid; gap: 0.2rem; margin-bottom: 0.75rem; }
+.pads__note { font-size: var(--step--1); color: var(--ink-3); }
+
+/* A five-syllable word (오렌지주스) on a narrow phone squeezes each pad below the
+   width of its own romanization caption, and draw.js already refuses to size a
+   canvas under 80px -- so the surface was being clipped rather than shrunk.
+   Wrapping at that floor keeps every pad writable; auto-fit rather than flex-wrap
+   so the pads on a second row line up with the ones above them. */
+.pads {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+  gap: 0.6rem;
+  max-width: 30rem;
+}
+.pad { display: grid; gap: 0.3rem; min-width: 0; align-content: start; }
+.pad__surface {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+.pad__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+/* Reserves the line even while the caption is held back, so nothing shifts
+   when the answer is revealed. */
+.pad__caption { font-family: var(--font-mono); font-size: var(--step--1); color: var(--ink-3); text-align: center; min-height: 1.6em; }
+.pads__tools { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.75rem; }
+
+/* Matching board -------------------------------------------------------- */
+.match__hint {
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  max-width: var(--measure);
+  margin-bottom: 1rem;
+}
+
+/* Two columns at every width: the pairing only reads as a pairing when the
+   two sides sit next to each other. */
+.match {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  /* Held in from the full panel width: the two sides have to stay close
+     enough together to read as a pair. */
+  max-width: 44rem;
+}
+.match__col { display: grid; gap: 0.6rem; align-content: start; min-width: 0; }
+
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 3.6rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--step-0);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--speed) var(--ease), border-color var(--speed) var(--ease),
+              color var(--speed) var(--ease), opacity var(--speed) var(--ease);
+}
+.tile:hover:not(:disabled) { background: var(--surface-3); border-color: var(--ink-3); }
+.tile:disabled { cursor: default; }
+
+.tile__text { min-width: 0; overflow-wrap: anywhere; }
+.tile--ko .tile__text { font-family: var(--font-ko); font-size: var(--step-1); font-weight: 600; }
+.tile__icon {
+  width: 14px; height: 14px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round;
+  color: var(--ink-3);
+}
+.tile:hover:not(:disabled) .tile__icon { color: var(--accent); }
+
+.tile.is-picked { border-color: var(--accent); background: var(--accent-soft); }
+.tile.is-picked .tile__icon { color: var(--accent); }
+.tile.is-wrong {
+  border-color: var(--negative);
+  background: color-mix(in srgb, var(--negative) 15%, transparent);
+  animation: tile-shake 0.3s var(--ease);
+}
+/* A matched pair stays where it is rather than collapsing, so the tiles still
+   waiting never jump out from under a finger. */
+.tile.is-matched {
+  border-style: dashed;
+  border-color: var(--line);
+  background: transparent;
+  color: var(--ink-3);
+  opacity: 0.55;
+}
+.tile.is-matched .tile__icon { color: var(--ink-3); }
+
+@keyframes tile-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+@media (max-width: 26rem) {
+  .match { gap: 0.45rem; }
+  .tile { padding: 0.6rem 0.55rem; min-height: 3.2rem; font-size: var(--step--1); }
+  .tile--ko .tile__text { font-size: var(--step-0); }
+  .tile__icon { width: 12px; height: 12px; }
+}
+
+/* Result --------------------------------------------------------------- */
+.result__score {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.result__sub { color: var(--ink-2); font-size: var(--step--1); }
+.review { list-style: none; display: grid; gap: 0.4rem; width: 100%; max-width: 34rem; }
+.review__item {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  text-align: left;
+}
+.review__ko { font-family: var(--font-ko); font-size: var(--step-1); font-weight: 600; }
+.review__rom { display: none; }
+.review__en { color: var(--ink-2); font-size: var(--step--1); overflow-wrap: anywhere; }
+@media (min-width: 30rem) {
+  .review__item { grid-template-columns: minmax(0, auto) minmax(0, auto) minmax(0, 1fr) auto; }
+  .review__rom { display: block; color: var(--ink-3); font-size: var(--step--1); }
+}
+
+.controls__group--center { justify-content: center; }
+
+/* ----------------------------------------- 10. Help, toast, footer, misc */
+.steps { display: grid; gap: 0.6rem; padding-left: 1.15rem; color: var(--ink-2); }
+.steps li::marker { color: var(--accent); font-weight: 700; }
+.steps strong { color: var(--ink); }
+
+.keys { width: 100%; border-collapse: collapse; font-size: var(--step--1); }
+.keys th, .keys td { text-align: left; padding: 0.4rem 0; border-bottom: 1px solid var(--line); font-weight: 400; }
+.keys td { color: var(--ink-2); }
+kbd {
+  display: inline-block;
+  min-width: 1.5rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-align: center;
+}
+.help__note { color: var(--ink-2); font-size: var(--step--1); }
+
+.modes { display: grid; gap: 0.15rem; margin: 0; font-size: var(--step--1); }
+.modes dt { font-weight: 600; color: var(--ink); }
+.modes dd { margin: 0 0 0.55rem; color: var(--ink-2); }
+.modes dd:last-child { margin-bottom: 0; }
+#help .sheet__body h2 { font-family: var(--font-display); font-size: var(--step-2); font-weight: 600; }
+#help .sheet__body h3 { font-size: var(--step-0); margin-top: 0.5rem; }
+
+.colophon { border-top: 1px solid var(--line); margin-top: 3rem; padding-block: 1.75rem; background: var(--bg-deep); }
+.colophon__inner { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: var(--step--1); color: var(--ink-3); }
+/* The deck also lives on its own site. Offered, never forced. */
+.colophon__link { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+.colophon__link:hover, .colophon__link:focus-visible { color: var(--accent); }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: var(--step--1);
+  box-shadow: var(--shadow);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Phone widths: shrink the key metrics so a full ten-key row still fits on one
+   line rather than wrapping two keys onto their own row. */
+@media (max-width: 30rem) {
+  .keyboard { padding: 0.55rem 0.45rem; }
+  .keyboard__row { gap: 0.25rem; }
+  .key {
+    flex: 1 1 1.5rem;
+    min-width: 1.5rem;
+    max-width: 2.6rem;
+    min-height: 2.3rem;
+    font-size: var(--step--1);
+  }
+  .key--wide { flex: 1 1 2.2rem; max-width: 3.2rem; }
+  .key--space { flex: 3 1 5rem; }
+}
+
+/* Below this the fixed label column cannot hold its text beside a value. */
+@media (max-width: 21rem) {
+  .study__glosses > div,
+  .verdict__facts > div { grid-template-columns: minmax(0, 1fr); gap: 0.15rem; }
+  .toolbar { padding: 0.75rem; }
+  :root { --gutter: 0.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  .masthead, .toolbar, .colophon, .card__tools, .skip-link, dialog, .toast, .progress { display: none !important; }
+  body { background: #fff; color: #000; }
+  .card { break-inside: avoid; border: 1px solid #999; }
+  .grid { grid-template-columns: repeat(3, 1fr); }
+  .intro__lead, .notice { display: none; }
+}
+
+/* Stretched-link card title: the whole card is clickable, one focus stop. */
+.card__open {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.card__open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+}
+.card__open:focus-visible { outline: none; }
+.card__open:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card__tools { position: relative; z-index: 1; }
+.card__hangul { margin: 0; font-weight: 500; }

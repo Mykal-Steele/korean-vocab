@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- BUILD:HEAD-START -->
+<title>Hangul Study Deck</title>
+<meta name="description" content="Learn Korean vocabulary for countries, occupations, everyday objects, numbers, drinks and places, in both counting systems: meaning, pronunciation audio, animated stroke order and handwriting practice for every syllable.">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#121110">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23121110'/%3E%3Ctext x='32' y='46' font-size='40' text-anchor='middle' fill='%23c9a227' font-family='sans-serif'%3E%ED%95%9C%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/styles.css">
+<!-- BUILD:HEAD-END -->
+</head>
+<body>
+<!-- BUILD:BODY-START -->
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap masthead__inner">
+    <a class="brand" href="#/deck" aria-label="Hangul Study Deck home">
+      <span class="brand__mark" aria-hidden="true">한</span>
+      <span class="brand__text">
+        <strong class="brand__name">Hangul Study Deck</strong>
+        <span class="brand__sub">Countries, Occupations, Things, Numbers, Drinks, Places &amp; Sino-Korean numbers</span>
+      </span>
+    </a>
+
+    <nav class="tabs" aria-label="Sections">
+      <a class="tab" href="#/deck" data-page="deck">Deck</a>
+      <a class="tab" href="#/practice" data-page="practice">Practice</a>
+    </nav>
+
+    <div class="masthead__actions">
+      <button type="button" class="btn btn--ghost" id="help-open" aria-haspopup="dialog">
+        <span aria-hidden="true">?</span><span class="btn__label">Help</span>
+      </button>
+      <button type="button" class="btn btn--ghost" id="theme-toggle" aria-pressed="true">
+        <span class="btn__label" id="theme-label">Dark</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <!-- ============================================================ Deck -->
+  <section class="page" id="page-deck" aria-labelledby="intro-title">
+    <div class="intro">
+      <h1 id="intro-title" class="intro__title">Read it, write it, say it.</h1>
+      <p class="intro__lead">
+        <span id="intro-count"></span> Open any card to hear it pronounced, watch every
+        stroke drawn in order, and write it out yourself.
+      </p>
+    </div>
+
+    <div class="toolbar">
+      <div class="field">
+        <label class="field__label" for="search">Search</label>
+        <input class="field__input" type="search" id="search" placeholder="Hangul, English, Thai or romanization"
+               autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="filters" role="group" aria-label="Category">
+        <button type="button" class="chip is-selected" data-filter="all" aria-pressed="true">All</button>
+        <!-- One chip per entry in CATEGORIES, inserted here at boot. -->
+        <button type="button" class="chip" data-filter="learned" aria-pressed="false">Learned only</button>
+      </div>
+
+      <div class="progress" role="group" aria-label="Study progress">
+        <div class="progress__bar"><span class="progress__fill" id="progress-fill"></span></div>
+        <p class="progress__text"><output id="progress-text"></output></p>
+        <button type="button" class="linkbtn" id="progress-reset">Reset</button>
+      </div>
+    </div>
+
+    <div id="deck"></div>
+    <p class="empty" id="empty" hidden>No words match that search.</p>
+  </section>
+
+  <!-- ======================================================== Practice -->
+  <section class="page" id="page-practice" aria-labelledby="practice-title" hidden>
+    <div class="intro">
+      <h1 id="practice-title" class="intro__title">Practice</h1>
+      <p class="intro__lead">
+        Five ways to test yourself: write the meaning, write the Korean, write down
+        what you hear in Korean or in English, or pair meanings with words on a
+        matching board. Choose a mode, tick the sets you want, and go.
+      </p>
+    </div>
+
+    <!-- Setup -->
+    <div class="panel" id="practice-setup">
+      <div class="setup">
+        <fieldset class="fieldset">
+          <legend><span class="fieldset__step">1</span> Practice mode</legend>
+          <div class="fieldset__options">
+            <label class="radio">
+              <input type="radio" name="drill-mode" value="toMeaning" checked>
+              <span>
+                <strong lang="ko">한국어 &rarr; meaning</strong>
+                <small>You see 선생님, you write <em>teacher</em>.</small>
+              </span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="drill-mode" value="toKorean">
+              <span>
+                <strong>Meaning &rarr; <span lang="ko">한국어</span></strong>
+                <small>You see <em>Teacher</em>, you write 선생님.</small>
+              </span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="drill-mode" value="listening">
+              <span>
+                <strong>Listen in <span lang="ko">한국어</span></strong>
+                <small>Nothing on screen — you hear 사전, you write 사전.</small>
+              </span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="drill-mode" value="listeningEn">
+              <span>
+                <strong>Listen in English</strong>
+                <small>Nothing on screen — you hear <em>dictionary</em>, you write 사전.</small>
+              </span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="drill-mode" value="matching">
+              <span>
+                <strong>Matching pairs</strong>
+                <small>Four meanings, four Korean words — tap the two that belong together.</small>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="fieldset">
+          <legend><span class="fieldset__step">2</span> Words</legend>
+          <div class="fieldset__options">
+            <label class="radio radio--all"><input type="checkbox" id="drill-set-all">
+              <span><strong>Every set</strong><small id="drill-set-all-count"></small></span></label>
+            <!-- One checkbox per entry in CATEGORIES, inserted here at boot. -->
+          </div>
+          <p class="fieldset__summary" id="drill-set-summary" role="status"></p>
+        </fieldset>
+      </div>
+
+      <p class="setup__note" id="setup-note"></p>
+      <button type="button" class="btn btn--primary" id="drill-start">Start practice</button>
+    </div>
+
+    <!-- Question -->
+    <div class="panel" id="practice-run" hidden>
+      <div class="drill__head">
+        <div class="drill__meter">
+          <div class="progress__bar"><span class="progress__fill" id="drill-fill"></span></div>
+          <p class="drill__count" role="status" aria-live="polite" id="drill-count"></p>
+        </div>
+        <button type="button" class="linkbtn" id="drill-quit">End practice</button>
+      </div>
+
+      <div class="drill">
+        <div class="drill__ask">
+          <p class="drill__label" id="drill-label"></p>
+          <p class="drill__prompt" id="drill-prompt"></p>
+          <button type="button" class="btn btn--ghost btn--audio" id="drill-listen">
+            <span class="btn__label">Play the sound</span>
+          </button>
+
+          <form class="answer" id="drill-form" autocomplete="off">
+            <label class="field__label" for="drill-answer" id="drill-answer-label">Your answer</label>
+            <input class="field__input field__input--answer" id="drill-answer" type="text"
+                   autocomplete="off" autocapitalize="off" spellcheck="false">
+            <p class="answer__hint" id="drill-hint"></p>
+
+            <div class="keyboard" id="drill-keyboard" hidden>
+              <div class="keyboard__head">
+                <span class="keyboard__title">Hangul keyboard</span>
+                <span class="keyboard__note">Your own keyboard works too — the Korean layout is mapped onto it.</span>
+              </div>
+              <div class="keyboard__rows" id="keyboard-rows"></div>
+            </div>
+
+            <div class="answer__actions">
+              <button type="submit" class="btn btn--primary" id="drill-check">Check</button>
+              <button type="button" class="btn" id="drill-reveal">Show answer</button>
+            </div>
+          </form>
+
+          <div class="verdict" id="drill-verdict" hidden>
+            <p class="verdict__line" id="verdict-line"></p>
+            <dl class="verdict__facts" id="verdict-facts"></dl>
+            <button type="button" class="btn btn--primary" id="drill-next">Next word</button>
+          </div>
+        </div>
+
+        <div class="drill__write">
+          <div class="pads__head">
+            <h2 class="pads__title">Write it</h2>
+            <p class="pads__note" id="drill-pads-note">Blank until you answer — write from memory.</p>
+          </div>
+          <div class="pads" id="drill-pads"></div>
+          <div class="pads__tools">
+            <button type="button" class="btn" data-pad-action="undo" data-pad-scope="drill">Undo</button>
+            <button type="button" class="btn" data-pad-action="clear" data-pad-scope="drill">Clear</button>
+            <label class="switch">
+              <input type="checkbox" id="drill-guide" disabled>
+              <span>Show the shape</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matching board -->
+    <div class="panel" id="practice-match" hidden>
+      <div class="drill__head">
+        <div class="drill__meter">
+          <div class="progress__bar"><span class="progress__fill" id="match-fill"></span></div>
+          <p class="drill__count" id="match-count"></p>
+        </div>
+        <button type="button" class="linkbtn" id="match-quit">End practice</button>
+      </div>
+
+      <p class="match__hint">
+        Tap a meaning and the Korean word that goes with it, in either order.
+        Korean words say themselves when you tap them.
+      </p>
+
+      <div class="match" id="match-board">
+        <div class="match__col" id="match-col-en" role="group" aria-label="Meanings"></div>
+        <div class="match__col" id="match-col-ko" role="group" aria-label="Korean words"></div>
+      </div>
+
+      <p class="visually-hidden" role="status" aria-live="polite" id="match-status"></p>
+    </div>
+
+    <!-- Result -->
+    <div class="panel panel--center" id="practice-result" hidden>
+      <p class="result__score" id="result-score"></p>
+      <p class="result__sub" id="result-sub"></p>
+      <ul class="review" id="result-review"></ul>
+      <div class="controls__group controls__group--center">
+        <button type="button" class="btn btn--primary" id="drill-again">Practise again</button>
+        <button type="button" class="btn" id="drill-settings">Change settings</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="colophon">
+  <div class="wrap colophon__inner">
+    <p>Stroke order is generated from Hangul composition rules. Pronunciation is recorded with a Korean voice and ships with the page.</p>
+    <p class="colophon__meta">Beginner Korean &middot; worksheet vocabulary &middot;
+      <a class="colophon__link" href="https://adorio.space/learn-korean">adorio.space/learn-korean</a></p>
+  </div>
+</footer>
+
+<!-- ================================================== Study dialog -->
+<dialog class="sheet" id="study" aria-labelledby="study-word">
+  <form method="dialog" class="sheet__close-form">
+    <button class="sheet__close" value="close" aria-label="Close">&times;</button>
+  </form>
+
+  <div class="sheet__body">
+    <header class="study__head">
+      <div class="study__ident">
+        <p class="study__eyebrow" id="study-category"></p>
+        <h2 class="study__word" id="study-word" lang="ko"></h2>
+        <p class="study__rom"><span id="study-rom"></span><span class="study__say" id="study-say"></span></p>
+      </div>
+      <dl class="study__glosses">
+        <div><dt>English</dt><dd id="study-en"></dd></div>
+        <div><dt>ภาษาไทย</dt><dd id="study-th" lang="th"></dd></div>
+        <div><dt>Jamo</dt><dd id="study-jamo" lang="ko" class="mono"></dd></div>
+      </dl>
+    </header>
+
+    <section class="study__block" aria-labelledby="audio-title">
+      <h3 id="audio-title">Pronunciation</h3>
+      <div class="controls__group">
+        <button type="button" class="btn btn--primary btn--audio" id="say-word">Say the word</button>
+        <button type="button" class="btn btn--audio" id="say-slow">Slowly</button>
+        <span class="hint">or tap a syllable below to hear it on its own</span>
+      </div>
+    </section>
+
+    <section class="study__block" aria-labelledby="stage-title">
+      <div class="stage__head">
+        <h3 id="stage-title">Stroke order</h3>
+        <p class="stage__status" id="stroke-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="syllables" id="syllables"></div>
+
+      <div class="controls">
+        <div class="controls__group" role="group" aria-label="Animation">
+          <button type="button" class="btn btn--primary" id="anim-play">Play strokes</button>
+          <button type="button" class="btn" id="anim-prev" aria-label="Previous stroke">&#8592;</button>
+          <button type="button" class="btn" id="anim-next" aria-label="Next stroke">&#8594;</button>
+          <button type="button" class="btn" id="anim-reset">Clear</button>
+          <button type="button" class="btn" id="anim-all">Show all</button>
+        </div>
+
+        <label class="range">
+          <span class="range__label">Speed</span>
+          <input type="range" id="anim-speed" min="0.5" max="2" step="0.25" value="1">
+          <output class="range__value" id="anim-speed-out">1.0&times;</output>
+        </label>
+
+        <div class="controls__group controls__group--toggles">
+          <label class="switch"><input type="checkbox" id="toggle-numbers" checked><span>Numbers</span></label>
+          <label class="switch"><input type="checkbox" id="toggle-ghost" checked><span>Outline</span></label>
+          <label class="switch"><input type="checkbox" id="toggle-grid" checked><span>Grid</span></label>
+        </div>
+      </div>
+    </section>
+
+    <section class="study__block" aria-labelledby="write-title">
+      <div class="pads__head">
+        <h3 id="write-title">Write it yourself</h3>
+        <p class="pads__note">Trace over the shape, then switch it off and write from memory.</p>
+      </div>
+      <div class="pads" id="study-pads"></div>
+      <div class="pads__tools">
+        <button type="button" class="btn" data-pad-action="undo" data-pad-scope="study">Undo</button>
+        <button type="button" class="btn" data-pad-action="clear" data-pad-scope="study">Clear</button>
+        <label class="switch"><input type="checkbox" id="study-guide" checked><span>Show the shape</span></label>
+      </div>
+    </section>
+
+    <section class="study__block" aria-labelledby="example-title">
+      <h3 id="example-title">In a sentence</h3>
+      <p class="example__ko" lang="ko" id="example-ko"></p>
+      <p class="example__en" id="example-en"></p>
+      <button type="button" class="btn btn--ghost btn--audio" id="say-example">Say the sentence</button>
+    </section>
+
+    <footer class="study__foot">
+      <button type="button" class="btn" id="study-prev">&#8592; Previous word</button>
+      <button type="button" class="btn btn--mark" id="study-learn" aria-pressed="false">Mark as learned</button>
+      <button type="button" class="btn" id="study-next">Next word &#8594;</button>
+    </footer>
+  </div>
+</dialog>
+
+<!-- ==================================================== Help dialog -->
+<dialog class="sheet sheet--narrow" id="help" aria-labelledby="help-title">
+  <form method="dialog" class="sheet__close-form">
+    <button class="sheet__close" value="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet__body">
+    <h2 id="help-title">How to use this deck</h2>
+    <ol class="steps">
+      <li><strong>Look.</strong> Each card shows the Hangul, its romanization, and the meaning in English and Thai.</li>
+      <li><strong>Listen.</strong> Press the speaker on a card, or open it and use <em>Say the word</em>. Tap a single syllable to hear just that block. The recordings ship with the page, so they play on any device.</li>
+      <li><strong>Write.</strong> Press <em>Play strokes</em> and follow the numbered order, then trace on the pad below and turn the shape off once you can write it unaided.</li>
+      <li><strong>Recall.</strong> Open <em>Practice</em> and pick a mode: write the meaning, write the Korean, write down what you hear in either language, or match meanings to words on a board. Then tick which sets of words to be asked about. Pick as many as you like and they get shuffled together.</li>
+    </ol>
+
+    <h3>The practice modes</h3>
+    <dl class="modes">
+      <dt><span lang="ko">한국어</span> &rarr; meaning</dt>
+      <dd>The Korean word is shown; you write what it means. Nothing plays while you are thinking &mdash; only if you press the sound button.</dd>
+      <dt>Meaning &rarr; <span lang="ko">한국어</span></dt>
+      <dd>The meaning is shown; you write the word in Hangul. Again, silent while the question is open.</dd>
+      <dt>Listen in <span lang="ko">한국어</span></dt>
+      <dd>Nothing is shown at all. The Korean word plays as each question opens and you write down what you heard — press <em>Play again</em> as often as you need.</dd>
+      <dt>Listen in English</dt>
+      <dd>The same, but what plays is the meaning read out in English, and the answer is the Korean word. Both the Korean and the English are recorded and ship with the page, so neither depends on the viewer having a voice installed.</dd>
+      <dt>Matching pairs</dt>
+      <dd>Up to four meanings and four Korean words at a time; tap one from each column to pair them. Tapping a Korean word plays it. The set is worked through a board at a time.</dd>
+    </dl>
+
+    <p class="help__note">
+      In every written mode, <em>Check</em> and <em>Show answer</em> both play the Korean
+      word as they reveal it &mdash; right or wrong, and whichever language you were
+      answering in. Nothing plays before that, so your ear never does the recalling for you.
+    </p>
+
+    <h3>Typing Korean</h3>
+    <p class="help__note">
+      You do not need a Korean keyboard installed. In the practice drill your normal
+      keyboard is mapped to the standard 두벌식 layout — <kbd>g</kbd><kbd>k</kbd><kbd>s</kbd>
+      types 한 — and an on-screen keyboard is there if you prefer to click. Romanization
+      such as <em>hanguk</em> is accepted as well.
+    </p>
+
+    <h3>Keyboard shortcuts</h3>
+    <table class="keys">
+      <tbody>
+        <tr><th scope="row"><kbd>Enter</kbd></th><td>Open the focused card, check your answer, or practise again from the results</td></tr>
+        <tr><th scope="row"><kbd>Space</kbd></th><td>Play or pause the stroke animation</td></tr>
+        <tr><th scope="row"><kbd>S</kbd></th><td>Say the word</td></tr>
+        <tr><th scope="row"><kbd>R</kbd></th><td>Replay from the first stroke</td></tr>
+        <tr><th scope="row"><kbd>&larr;</kbd> <kbd>&rarr;</kbd></th><td>Step one stroke back or forward</td></tr>
+        <tr><th scope="row"><kbd>[</kbd> <kbd>]</kbd></th><td>Previous or next word</td></tr>
+        <tr><th scope="row"><kbd>Esc</kbd></th><td>Close</td></tr>
+      </tbody>
+    </table>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/audio.js"></script>
+<script src="assets/js/hangul.js"></script>
+<script src="assets/js/voice.js"></script>
+<script src="assets/js/writer.js"></script>
+<script src="assets/js/draw.js"></script>
+<script src="assets/js/app.js"></script>
+<!-- BUILD:BODY-END -->
+</body>
+</html>
