@@ -23,10 +23,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.head_ref }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - name: Install ffmpeg
@@ -38,7 +38,7 @@ jobs:
       - name: Fetch the English voice
         run: |
           mkdir -p "$RUNNER_TEMP/piper"
-          base=https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium
+          base=https://huggingface.co/rhasspy/piper-voices/resolve/5041a7a49ae5b3a0f30e6837769eb03fdbb231bd/en/en_US/lessac/medium
           curl -fsSL -o "$RUNNER_TEMP/piper/en.onnx" "$base/en_US-lessac-medium.onnx"
           curl -fsSL -o "$RUNNER_TEMP/piper/en.onnx.json" "$base/en_US-lessac-medium.onnx.json"
       - name: Render the clips that are missing
@@ -68,20 +68,20 @@ jobs:
     if: ${{ always() && needs.audio.result != 'failure' && needs.audio.result != 'cancelled' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # After the audio job pushes, check the new commit on the branch, not the old one.
           ref: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.head_ref || github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - name: Validate the word data
         run: node tools/check-data.js
       - name: Install the test dependencies
-        run: python3 -m pip install pyyaml
+        run: python3 -m pip install pyyaml==6.0.3
       - name: Run the tests
         run: python3 -m unittest discover -s tests -v
       - name: Build the hosted site and the artifact copy
@@ -109,11 +109,11 @@ jobs:
       RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       RCLONE_CONFIG_R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
       - name: Install rclone
@@ -121,6 +121,7 @@ jobs:
         # store the Cache-Control header on uploads.
         run: |
           curl -fsSLO https://downloads.rclone.org/v1.75.2/rclone-v1.75.2-linux-amd64.zip
+          echo "349ac8fba6ff65d6247043f1750cdcb518ec5d500ef91463a10d37c0ccdf3702  rclone-v1.75.2-linux-amd64.zip" | sha256sum -c -
           unzip -q rclone-v1.75.2-linux-amd64.zip
           sudo install rclone-v1.75.2-linux-amd64/rclone /usr/local/bin/rclone
           rclone version
