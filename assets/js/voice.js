@@ -54,17 +54,21 @@ const Voice = (() => {
       const done = () => {
         audio.removeEventListener('ended', done);
         audio.removeEventListener('error', failed);
+        releaseWarm();
         resolve();
       };
       const failed = () => {
         audio.removeEventListener('ended', done);
         audio.removeEventListener('error', failed);
+        releaseWarm();
         // A missing or undecodable clip should still make a sound if it can.
         speak(text, rate, lang).then(resolve, reject);
       };
 
       audio.addEventListener('ended', done);
       audio.addEventListener('error', failed);
+      holdWarm();
+      audio.addEventListener('canplaythrough', releaseWarm, { once: true });
       audio.src = url;
       audio.playbackRate = rate;
       // Non-standard spellings are still needed by older WebKit and Firefox.
@@ -106,6 +110,7 @@ const Voice = (() => {
 
   function stop() {
     token += 1;
+    releaseWarm();
     if (element) {
       element.pause();
       try {
@@ -131,31 +136,52 @@ const Voice = (() => {
     return urls;
   }
 
+  // Background warm-up of the clips. A play press holds it so the pressed clip loads first.
+  const warm = { urls: [], next: 0, held: false, queued: false };
+  const idle = typeof requestIdleCallback === 'function'
+    ? (cb) => requestIdleCallback(cb, { timeout: 2000 })
+    : (cb) => setTimeout(cb, 300);
+
+  function warmStep() {
+    warm.queued = false;
+    if (warm.held) return;
+    const end = Math.min(warm.next + 20, warm.urls.length);
+    for (; warm.next < end; warm.next++) {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.as = 'audio';
+      link.href = warm.urls[warm.next];
+      link.dataset.warm = '1';
+      document.head.appendChild(link);
+    }
+    if (warm.next < warm.urls.length) scheduleWarm();
+  }
+
+  function scheduleWarm() {
+    if (warm.queued || warm.held) return;
+    warm.queued = true;
+    idle(warmStep);
+  }
+
   /**
-   * Warms the browser cache with every clip after the page has loaded, a few at a time in
-   * idle slots. Prefetch is low priority, so the page itself loads no slower, and a clip
-   * played later comes from the cache.
+   * Stops adding new batches while the clip the user pressed is loading. Links already
+   * added stay, so no clip is skipped. At most one batch is queued at a time.
    */
+  function holdWarm() {
+    warm.held = true;
+  }
+
+  /** Lets the warm-up continue once the pressed clip is done loading or has ended. */
+  function releaseWarm() {
+    warm.held = false;
+    scheduleWarm();
+  }
+
   function warmClips() {
     if (!hasClips) return;
-    const urls = clipUrlsToWarm(AUDIO, AUDIO_BASE);
-    const idle = typeof requestIdleCallback === 'function'
-      ? (cb) => requestIdleCallback(cb, { timeout: 2000 })
-      : (cb) => setTimeout(cb, 300);
-    let next = 0;
-    const batch = () => {
-      const end = Math.min(next + 20, urls.length);
-      for (; next < end; next++) {
-        const link = document.createElement('link');
-        link.rel = 'prefetch';
-        link.as = 'audio';
-        link.href = urls[next];
-        document.head.appendChild(link);
-      }
-      if (next < urls.length) idle(batch);
-    };
-    if (document.readyState === 'complete') idle(batch);
-    else window.addEventListener('load', () => idle(batch), { once: true });
+    warm.urls = clipUrlsToWarm(AUDIO, AUDIO_BASE);
+    if (document.readyState === 'complete') scheduleWarm();
+    else window.addEventListener('load', scheduleWarm, { once: true });
   }
   warmClips();
 
