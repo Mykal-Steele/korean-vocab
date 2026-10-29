@@ -27,8 +27,8 @@ This repo is a static study site for beginner Korean. It is published at
 2. Run `node tools/check-data.js`. Fix anything it reports.
 3. If the word or its example sentence has no clip yet, CI renders it. On a PR from a branch in
    this repo, the `audio` job renders the missing clips and pushes a commit to your branch. Pull
-   the branch before you make more edits. Do not install gTTS or Piper to render clips yourself
-   unless the owner asks.
+   the branch before you make more edits. Forks don't get this job, so a PR from a fork has no
+   audio. Do not install gTTS or Piper to render clips yourself unless the owner asks.
 4. Look at the page locally (see below).
 
 ## Viewing the site the way Adorio shows it
@@ -56,9 +56,12 @@ card flow and one audio clip. Use the browser tools only for this local URL.
 
 ## Git and deploys
 
-- Work on a branch and open a PR. Do not push to `main`. Only the owner merges.
-- Merging to `main` starts a deploy. The owner approves it in the `production` environment.
-  CI then builds the site, uploads it to R2 and checks the live URL.
+- Work on a branch and open a PR. Do not push to `main`.
+- `main` needs one approving review from someone other than the PR author. The owner can bypass this.
+- Merging to `main` deploys the site right away. There is no approval step.
+- A deploy builds the site, uploads it to R2, and checks that the stored entry page matches the
+  build. It reads the copy from R2, not the public URL, because Cloudflare adds a script to HTML
+  served on the adorio.space zone.
 - Do not add or print R2 credentials, Cloudflare tokens or `.env` values. CI holds them.
 - Do not change `adorio.space` code from this repo. The Adorio route already reads the
   entry page from R2.
