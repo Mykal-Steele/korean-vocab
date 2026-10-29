@@ -26,6 +26,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          # A personal token makes the pushed commit start normal runs. Without the
+          # secret, the job falls back to the built-in token.
+          token: ${{ secrets.AUDIO_PUSH_TOKEN || github.token }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
