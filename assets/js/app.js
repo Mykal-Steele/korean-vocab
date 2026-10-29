@@ -199,7 +199,7 @@
    */
   function buildPads(host, word, { guide, captions = true }) {
     host.textContent = '';
-    const cells = [...word.ko].map((char, i) => {
+    const cells = Hangul.syllablesOf(word.ko).map((char, i) => {
       const cell = document.createElement('div');
       cell.className = 'pad';
       const caption = document.createElement('p');
@@ -230,7 +230,7 @@
     const host = $('#syllables');
     host.textContent = '';
 
-    [...word.ko].forEach((char, i) => {
+    Hangul.syllablesOf(word.ko).forEach((char, i) => {
       const parts = Writer.renderSyllable(char, i);
       applyGlyphOptions(parts.svg);
 
@@ -279,7 +279,7 @@
     $('#study-say').textContent = word.say ? `pronounced [${word.say}]` : '';
     $('#study-en').textContent = word.en;
     $('#study-th').textContent = word.th;
-    $('#study-jamo').textContent = [...word.ko].map(Hangul.spell).join('   /   ');
+    $('#study-jamo').textContent = Hangul.syllablesOf(word.ko).map(Hangul.spell).join('   /   ');
     $('#example-ko').textContent = word.example.ko;
     $('#example-en').textContent = word.example.en;
 
@@ -519,7 +519,7 @@
     $('#drill-guide').disabled = false;
     $('#drill-guide').checked = true;
     drillPads.forEach((pad) => pad.setGuide(true));
-    const syllables = [...word.ko];
+    const syllables = Hangul.syllablesOf(word.ko);
     $$('#drill-pads .pad__caption').forEach((caption, i) => {
       caption.textContent = word.syl[i] || syllables[i];
     });

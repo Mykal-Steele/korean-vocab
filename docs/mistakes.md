@@ -95,3 +95,14 @@ Rule: after an upload, read the stored metadata back and fail if a header is wro
 tool version in CI to the one you tested locally.
 
 Check: the deploy job's "Check the stored cache headers" step.
+
+## Copy source text exactly
+
+I stored three words without their spaces, and one with a bracket removed, because the
+validator only allowed bare Hangul. The handout had the spaces and brackets.
+
+Rule: copy the text from the source as written. If a check rejects it, change the check, not
+the text. Compare the stored text against the source before you open the PR.
+
+Check: `tools/check-data.js` allows spaces and brackets in `ko`, and counts only the Hangul
+syllables for the pads and romanization. `tests/test_word_text.py` checks the four words.
