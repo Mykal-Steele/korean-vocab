@@ -1,7 +1,7 @@
 # Hangul Study Deck
 
 A static study site for beginner Korean vocabulary — 나라 (countries), 직업
-(occupations), 물건 (things), 음료 (drinks), 장소 (places), 시간 (time), 행동 (actions),
+(occupations), 물건 (things), 음료 (drinks), 장소 (places), 시간 (time), 행동 and 행동 2 (actions),
 요일 (days of the week) and both counting systems, 고유어 숫자 (native) and 한자어 숫자
 (Sino-Korean). Every word can be heard,
 and every syllable can be watched being written stroke by stroke in the correct
