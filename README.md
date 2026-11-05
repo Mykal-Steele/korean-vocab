@@ -1,8 +1,9 @@
 # Hangul Study Deck
 
 A static study site for beginner Korean vocabulary — 나라 (countries), 직업
-(occupations), 물건 (things), 음료 (drinks), 장소 (places) and both counting
-systems, 고유어 숫자 (native) and 한자어 숫자 (Sino-Korean). Every word can be heard,
+(occupations), 물건 (things), 음료 (drinks), 장소 (places), 시간 (time), 행동 (actions),
+요일 (days of the week) and both counting systems, 고유어 숫자 (native) and 한자어 숫자
+(Sino-Korean). Every word can be heard,
 and every syllable can be watched being written stroke by stroke in the correct
 order.
 
@@ -169,7 +170,7 @@ data, because a bad field usually surfaces far from its cause. It checks that
 handwriting pad with no caption), that `say` is the same length as `ko`, that no
 two words share an English gloss (which would put two identical tiles on a
 matching board with only one right answer), that every `category` exists and
-every category has words, that `ko` is a bare run of Hangul, that `accept` is
+every category has words, that `ko` holds only Hangul syllables, spaces and brackets, that `accept` is
 lowercase and free of duplicates, and that every syllable in a word *and its
 example sentence* has stroke data. It also warns, without failing, about strings
 that have no clip yet, which is the normal state between editing `data.js` and
@@ -179,7 +180,7 @@ Fields on a word:
 
 | field | notes |
 |---|---|
-| `ko` | Hangul spelling, letters only, no spaces |
+| `ko` | Hangul spelling, with any spaces and brackets from the handout. Only the Hangul syllables get a pad and a `syl` entry |
 | `rom` | Revised Romanization of the whole word |
 | `syl` | per-syllable romanization, exactly one entry per block |
 | `say` | optional, actual pronunciation where a sound change hides it (학교 → 학꾜). Skip the automatic ones a learner never gets wrong |
@@ -242,7 +243,8 @@ One engine per language:
 Example sentences use Google's slow reading; single words are already deliberate
 and sound laboured when slowed further. A slashed gloss such as `Watch / Clock` is
 stored in the table under the whole string, because that is what the card prints,
-but only its first alternative is read aloud.
+but only its first alternative is read aloud. Every Hangul syllable of every word gets
+its own clip, including words with brackets or spaces.
 
 Clips are trimmed at −55 dB, levelled to −16 LUFS with a −1.5 dB ceiling, and given
 60 ms of silence at each end. The gate is deliberately loose: a final unreleased

@@ -29,7 +29,9 @@ This repo is a static study site for beginner Korean. It is published at
    this repo, the `audio` job renders the missing clips and pushes a commit to your branch. Pull
    the branch before you make more edits. Forks don't get this job, so a PR from a fork has no
    audio. Do not install gTTS or Piper to render clips yourself unless the owner asks.
-4. Look at the page locally (see below).
+4. If the word adds characters the page hasn't used before, run `python3 tools/build-fonts.py` and
+   commit `assets/css/fonts.css`. CI doesn't regenerate it.
+5. Look at the page locally (see below).
 
 ## Viewing the site the way Adorio shows it
 

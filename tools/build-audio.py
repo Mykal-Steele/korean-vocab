@@ -126,7 +126,7 @@ def collect_strings() -> list[tuple[str, str, str]]:
 
 
 def is_sentence(text: str) -> bool:
-    """Word entries are a bare run of Hangul; examples carry spaces and punctuation."""
+    """True for anything but a bare run of Hangul: examples, and words with spaces or brackets."""
     return not all(HANGUL_START <= ord(c) <= HANGUL_END for c in text)
 
 
