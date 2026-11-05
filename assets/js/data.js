@@ -21,7 +21,8 @@ const CATEGORIES = [
   { id: 'jangso', ko: '장소', en: 'Places', th: 'สถานที่' },
   { id: 'hanja', ko: '한자어 숫자', en: 'Sino-Korean numbers', th: 'ตัวเลขจีน-เกาหลี' },
   { id: 'sigan', ko: '시간', en: 'Time', th: 'เวลา' },
-  { id: 'haengdong', ko: '행동', en: 'Actions', th: 'การกระทำ' }
+  { id: 'haengdong', ko: '행동', en: 'Actions', th: 'การกระทำ' },
+  { id: 'yoil', ko: '요일', en: 'Days of the week', th: 'วันในสัปดาห์' }
 ];
 
 const WORDS = [
@@ -600,5 +601,125 @@ const WORDS = [
     accept: ['go', 'go to', 'go to a place'],
     en: 'to go (to a place)', th: 'ไป', category: 'haengdong',
     example: { ko: '학교에 가요.', en: 'I go to school.' }
+  },
+  {
+    ko: '(비자를) 받다', rom: 'bijareul batda', syl: ['bi', 'ja', 'reul', 'bat', 'da'], say: '(비자를) 받따',
+    accept: ['get', 'to get', 'get a visa', 'receive', 'to receive', 'receive a visa', 'to receive a visa'],
+    en: 'to get (a visa)', th: 'ได้รับ (วีซ่า)', category: 'haengdong',
+    example: { ko: '대사관에서 비자를 받아요.', en: 'I get a visa at the embassy.' }
+  },
+  {
+    ko: '(커피를) 마시다', rom: 'keopireul masida', syl: ['keo', 'pi', 'reul', 'ma', 'si', 'da'],
+    accept: ['drink', 'to drink', 'drink coffee'],
+    en: 'to drink (coffee)', th: 'ดื่ม (กาแฟ)', category: 'haengdong',
+    example: { ko: '아침에 커피를 마셔요.', en: 'I drink coffee in the morning.' }
+  },
+  {
+    ko: '(영화를) 보다', rom: 'yeonghwareul boda', syl: ['yeong', 'hwa', 'reul', 'bo', 'da'],
+    accept: ['watch', 'to watch', 'watch a movie', 'watch a film', 'to watch a film', 'see a movie', 'to see a movie'],
+    en: 'to watch (a movie)', th: 'ดู (หนัง)', category: 'haengdong',
+    example: { ko: '극장에서 영화를 봐요.', en: 'I watch a movie at the theater.' }
+  },
+  {
+    ko: '(음악을) 듣다', rom: 'eumageul deutda', syl: ['eum', 'ak', 'eul', 'deut', 'da'], say: '(으마글) 듣따',
+    accept: ['listen', 'to listen', 'listen to', 'listen to music'],
+    en: 'to listen to (music)', th: 'ฟัง (เพลง)', category: 'haengdong',
+    example: { ko: '저녁에 음악을 들어요.', en: 'I listen to music in the evening.' }
+  },
+  {
+    ko: '(일본어를) 가르치다', rom: 'ilboneoreul gareuchida', syl: ['il', 'bon', 'eo', 'reul', 'ga', 'reu', 'chi', 'da'], say: '(일보너를) 가르치다',
+    accept: ['teach', 'to teach', 'teach japanese'],
+    en: 'to teach (Japanese)', th: 'สอน (ภาษาญี่ปุ่น)', category: 'haengdong',
+    example: { ko: '저는 일본어를 가르쳐요.', en: 'I teach Japanese.' }
+  },
+  {
+    ko: '(책을) 빌리다', rom: 'chaegeul billida', syl: ['chaek', 'eul', 'bil', 'li', 'da'], say: '(채글) 빌리다',
+    accept: ['borrow', 'to borrow', 'borrow a book'],
+    en: 'to borrow (a book)', th: 'ยืม (หนังสือ)', category: 'haengdong',
+    example: { ko: '도서관에서 책을 빌려요.', en: 'I borrow a book from the library.' }
+  },
+  {
+    ko: '(책을) 읽다', rom: 'chaegeul ikda', syl: ['chaek', 'eul', 'ik', 'da'], say: '(채글) 익따',
+    accept: ['read', 'to read', 'read a book'],
+    en: 'to read (a book)', th: 'อ่าน (หนังสือ)', category: 'haengdong',
+    example: { ko: '밤에 책을 읽어요.', en: 'I read a book at night.' }
+  },
+  {
+    ko: '(춤을) 추다', rom: 'chumeul chuda', syl: ['chum', 'eul', 'chu', 'da'], say: '(추믈) 추다',
+    accept: ['dance'],
+    en: 'to dance', th: 'เต้นรำ', category: 'haengdong',
+    example: { ko: '친구와 춤을 춰요.', en: 'I dance with a friend.' }
+  },
+  {
+    ko: '(친구를) 만나다', rom: 'chingureul mannada', syl: ['chin', 'gu', 'reul', 'man', 'na', 'da'],
+    accept: ['meet', 'to meet', 'meet a friend', 'meet friend', 'to meet friend'],
+    en: 'to meet (a friend)', th: 'พบ (เพื่อน)', category: 'haengdong',
+    example: { ko: '점심에 친구를 만나요.', en: 'I meet a friend at lunch.' }
+  },
+  {
+    ko: '(컴퓨터를) 배우다', rom: 'keompyuteoreul baeuda', syl: ['keom', 'pyu', 'teo', 'reul', 'bae', 'u', 'da'],
+    accept: ['learn', 'to learn', 'learn computer', 'learn computers', 'to learn computers'],
+    en: 'to learn (computer)', th: 'เรียน (คอมพิวเตอร์)', category: 'haengdong',
+    example: { ko: '학교에서 컴퓨터를 배워요.', en: 'I learn computers at school.' }
+  },
+  {
+    ko: '(테니스를) 치다', rom: 'teniseureul chida', syl: ['te', 'ni', 'seu', 'reul', 'chi', 'da'],
+    accept: ['play', 'to play', 'play tennis'],
+    en: 'to play (tennis)', th: 'เล่น (เทนนิส)', category: 'haengdong',
+    example: { ko: '주말에 테니스를 쳐요.', en: 'I play tennis on the weekend.' }
+  },
+  {
+    ko: '(텔레비전을) 보다', rom: 'tellebijeoneul boda', syl: ['tel', 'le', 'bi', 'jeon', 'eul', 'bo', 'da'], say: '(텔레비저늘) 보다',
+    accept: ['watch', 'to watch', 'watch tv', 'watch television', 'to watch television'],
+    en: 'to watch (TV)', th: 'ดู (โทรทัศน์)', category: 'haengdong',
+    example: { ko: '저녁에 텔레비전을 봐요.', en: 'I watch TV in the evening.' }
+  },
+  {
+    ko: '(한국어를) 공부하다', rom: 'hangugeoreul gongbuhada', syl: ['han', 'guk', 'eo', 'reul', 'gong', 'bu', 'ha', 'da'], say: '(한구거를) 공부하다',
+    accept: ['study', 'to study', 'study korean'],
+    en: 'to study (Korean)', th: 'เรียน (ภาษาเกาหลี)', category: 'haengdong',
+    example: { ko: '한국에서 한국어를 공부해요.', en: 'I study Korean in Korea.' }
+  },
+  {
+    ko: '월요일', rom: 'woryoil', syl: ['wol', 'yo', 'il'], say: '워료일',
+    accept: ['monday', 'mon'],
+    en: 'Monday', th: 'วันจันทร์', category: 'yoil',
+    example: { ko: '월요일에 학교에 가요.', en: 'I go to school on Monday.' }
+  },
+  {
+    ko: '화요일', rom: 'hwayoil', syl: ['hwa', 'yo', 'il'],
+    accept: ['tuesday', 'tue', 'tues'],
+    en: 'Tuesday', th: 'วันอังคาร', category: 'yoil',
+    example: { ko: '화요일에 테니스를 쳐요.', en: 'I play tennis on Tuesday.' }
+  },
+  {
+    ko: '수요일', rom: 'suyoil', syl: ['su', 'yo', 'il'],
+    accept: ['wednesday', 'wed'],
+    en: 'Wednesday', th: 'วันพุธ', category: 'yoil',
+    example: { ko: '수요일에 도서관에 가요.', en: 'I go to the library on Wednesday.' }
+  },
+  {
+    ko: '목요일', rom: 'mogyoil', syl: ['mok', 'yo', 'il'], say: '모교일',
+    accept: ['thursday', 'thu', 'thurs'],
+    en: 'Thursday', th: 'วันพฤหัสบดี', category: 'yoil',
+    example: { ko: '목요일에 친구를 만나요.', en: 'I meet a friend on Thursday.' }
+  },
+  {
+    ko: '금요일', rom: 'geumyoil', syl: ['geum', 'yo', 'il'], say: '그묘일',
+    accept: ['friday', 'fri'],
+    en: 'Friday', th: 'วันศุกร์', category: 'yoil',
+    example: { ko: '금요일에 영화를 봐요.', en: 'I watch a movie on Friday.' }
+  },
+  {
+    ko: '토요일', rom: 'toyoil', syl: ['to', 'yo', 'il'],
+    accept: ['saturday', 'sat'],
+    en: 'Saturday', th: 'วันเสาร์', category: 'yoil',
+    example: { ko: '토요일에 쇼핑해요.', en: 'I go shopping on Saturday.' }
+  },
+  {
+    ko: '일요일', rom: 'iryoil', syl: ['il', 'yo', 'il'], say: '이료일',
+    accept: ['sunday', 'sun'],
+    en: 'Sunday', th: 'วันอาทิตย์', category: 'yoil',
+    example: { ko: '일요일에 집에서 쉬어요.', en: 'I rest at home on Sunday.' }
   }
 ];
