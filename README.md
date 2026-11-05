@@ -12,9 +12,9 @@ order.
 - **Meaning** — Hangul, Revised Romanization, English and Thai on every card, plus
   the real pronunciation where sound-change rules alter the spelling (독일 → 도길,
   학생 → 학쌩) and a short example sentence.
-- **Pronunciation** — 315 audio clips bundled into the page, so sound works on any
-  browser or OS with no voice pack and no network: 239 Korean read by Google
-  Translate's voice, covering every word, syllable and example sentence, and 76
+- **Pronunciation** — 467 audio clips bundled into the page, so sound works on any
+  browser or OS with no voice pack and no network: 351 Korean read by Google
+  Translate's voice, covering every word, syllable and example sentence, and 116
   English (Piper `en_US-lessac-medium`) covering the glosses that the English
   listening drill reads out. Example sentences use Google's slow reading and land
   near 4 syllables a second, which a beginner can follow. Nothing plays unprompted
