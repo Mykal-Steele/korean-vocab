@@ -107,12 +107,13 @@ def collect_strings() -> list[tuple[str, str, str]]:
     for text in found:
         if text not in phrases:
             phrases.append(text)
-        # Word entries are a bare run of Hangul; example sentences have spaces
-        # and punctuation. Only words are broken down syllable by syllable.
-        if all(HANGUL_START <= ord(c) <= HANGUL_END for c in text):
-            for char in text:
-                if char not in syllables:
-                    syllables.append(char)
+
+    # Only words are broken down syllable by syllable, not example sentences. A word
+    # is the `ko` followed by `rom`, and may carry spaces and brackets from the handout.
+    for text in re.findall(r"ko:\s*'([^']+)',\s*rom:", words_only):
+        for char in text:
+            if HANGUL_START <= ord(char) <= HANGUL_END and char not in syllables:
+                syllables.append(char)
 
     korean = phrases + [s for s in syllables if s not in phrases]
     glosses: list[str] = []
@@ -125,7 +126,7 @@ def collect_strings() -> list[tuple[str, str, str]]:
 
 
 def is_sentence(text: str) -> bool:
-    """Word entries are a bare run of Hangul; examples carry spaces and punctuation."""
+    """True for anything but a bare run of Hangul: examples, and words with spaces or brackets."""
     return not all(HANGUL_START <= ord(c) <= HANGUL_END for c in text)
 
 

@@ -2,8 +2,10 @@
 
 Run from the repo root:  python3 -m unittest discover -s tests -v
 """
+import importlib.util
 import json
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -90,6 +92,50 @@ HANDOUT_EN = {
     "점심 식사하다": "to have lunch",
     "저녁 식사하다": "to have dinner",
     "(장소)에 가다": "to go (to a place)",
+    "(비자를) 받다": "to get (a visa)",
+    "(커피를) 마시다": "to drink (coffee)",
+    "(영화를) 보다": "to watch (a movie)",
+    "(음악을) 듣다": "to listen to (music)",
+    "(일본어를) 가르치다": "to teach (Japanese)",
+    "(책을) 빌리다": "to borrow (a book)",
+    "(책을) 읽다": "to read (a book)",
+    "(춤을) 추다": "to dance",
+    "(친구를) 만나다": "to meet (a friend)",
+    "(컴퓨터를) 배우다": "to learn (computer)",
+    "(테니스를) 치다": "to play (tennis)",
+    "(텔레비전을) 보다": "to watch (TV)",
+    "(한국어를) 공부하다": "to study (Korean)",
+    "월요일": "Monday",
+    "화요일": "Tuesday",
+    "수요일": "Wednesday",
+    "목요일": "Thursday",
+    "금요일": "Friday",
+    "토요일": "Saturday",
+    "일요일": "Sunday",
+}
+
+# The Thai glosses exactly as the class handout writes them.
+HANDOUT_TH = {
+    "(비자를) 받다": "ได้รับ (วีซ่า)",
+    "(커피를) 마시다": "ดื่ม (กาแฟ)",
+    "(영화를) 보다": "ดู (หนัง)",
+    "(음악을) 듣다": "ฟัง (เพลง)",
+    "(일본어를) 가르치다": "สอน (ภาษาญี่ปุ่น)",
+    "(책을) 빌리다": "ยืม (หนังสือ)",
+    "(책을) 읽다": "อ่าน (หนังสือ)",
+    "(춤을) 추다": "เต้นรำ",
+    "(친구를) 만나다": "พบ (เพื่อน)",
+    "(컴퓨터를) 배우다": "เรียน (คอมพิวเตอร์)",
+    "(테니스를) 치다": "เล่น (เทนนิส)",
+    "(텔레비전을) 보다": "ดู (โทรทัศน์)",
+    "(한국어를) 공부하다": "เรียน (ภาษาเกาหลี)",
+    "월요일": "วันจันทร์",
+    "화요일": "วันอังคาร",
+    "수요일": "วันพุธ",
+    "목요일": "วันพฤหัสบดี",
+    "금요일": "วันศุกร์",
+    "토요일": "วันเสาร์",
+    "일요일": "วันอาทิตย์",
 }
 
 
@@ -99,6 +145,25 @@ class EnglishMatchesTheHandout(unittest.TestCase):
             words = node(f"WORDS.filter((w) => w.ko === {json.dumps(ko, ensure_ascii=False)})")
             self.assertEqual(len(words), 1, f"expected one word for {ko}")
             self.assertEqual(words[0]["en"], en, ko)
+
+
+class ThaiMatchesTheHandout(unittest.TestCase):
+    def test_every_handout_gloss_is_exact(self):
+        for ko, th in HANDOUT_TH.items():
+            words = node(f"WORDS.filter((w) => w.ko === {json.dumps(ko, ensure_ascii=False)})")
+            self.assertEqual(len(words), 1, f"expected one word for {ko}")
+            self.assertEqual(words[0]["th"], th, ko)
+
+
+class EverySyllableGetsAClip(unittest.TestCase):
+    def test_syllables_of_bracketed_and_spaced_words_are_collected(self):
+        spec = importlib.util.spec_from_file_location("build_audio", ROOT / "tools" / "build-audio.py")
+        build_audio = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = build_audio
+        spec.loader.exec_module(build_audio)
+        keys = {key for key, _, _ in build_audio.collect_strings()}
+        for char in node("[...new Set(WORDS.flatMap((w) => Hangul.syllablesOf(w.ko)))]"):
+            self.assertIn(char, keys)
 
 
 if __name__ == "__main__":

@@ -153,7 +153,7 @@ if (fs.existsSync(audioPath)) {
       wanted.add(word.ko);
       wanted.add(word.en);
       wanted.add(word.example.ko);
-      for (const char of word.ko) wanted.add(char);
+      for (const char of Hangul.syllablesOf(word.ko)) wanted.add(char);
     }
     for (const text of wanted) if (!(text in table)) missingAudio.push(text);
   }
