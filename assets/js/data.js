@@ -23,7 +23,8 @@ const CATEGORIES = [
   { id: 'sigan', ko: '시간', en: 'Time', th: 'เวลา' },
   { id: 'haengdong', ko: '행동', en: 'Actions', th: 'การกระทำ' },
   { id: 'haengdong2', ko: '행동 2', en: 'Actions 2', th: 'การกระทำ 2' },
-  { id: 'yoil', ko: '요일', en: 'Days of the week', th: 'วันในสัปดาห์' }
+  { id: 'yoil', ko: '요일', en: 'Days of the week', th: 'วันในสัปดาห์' },
+  { id: 'gwageo', ko: '과거와 미래', en: 'Past & future', th: 'อดีตและอนาคต' }
 ];
 
 const WORDS = [
@@ -722,5 +723,167 @@ const WORDS = [
     accept: ['sunday', 'sun'],
     en: 'Sunday', th: 'วันอาทิตย์', category: 'yoil',
     example: { ko: '일요일에 집에서 쉬어요.', en: 'I rest at home on Sunday.' }
+  },
+  {
+    ko: '어제', rom: 'eoje', syl: ['eo', 'je'],
+    accept: ['yesterday'],
+    en: 'yesterday', th: 'เมื่อวาน', category: 'gwageo',
+    example: { ko: '어제 영화를 봤어요.', en: 'I watched a movie yesterday.' }
+  },
+  {
+    ko: '사다', rom: 'sada', syl: ['sa', 'da'],
+    accept: ['buy', 'to buy'],
+    en: 'to buy', th: 'ซื้อ', category: 'gwageo',
+    example: { ko: '시장에서 과일을 사요.', en: 'I buy fruit at the market.' }
+  },
+  {
+    ko: '내일', rom: 'naeil', syl: ['nae', 'il'],
+    accept: ['tomorrow'],
+    en: 'tomorrow', th: 'พรุ่งนี้', category: 'gwageo',
+    example: { ko: '내일 친구를 만나요.', en: 'I meet a friend tomorrow.' }
+  },
+  {
+    ko: '지난주', rom: 'jinanju', syl: ['ji', 'nan', 'ju'],
+    accept: ['last week'],
+    en: 'last week', th: 'สัปดาห์ที่แล้ว', category: 'gwageo',
+    example: { ko: '지난주에 바빴어요.', en: 'I was busy last week.' }
+  },
+  {
+    ko: '준비하다', rom: 'junbihada', syl: ['jun', 'bi', 'ha', 'da'],
+    accept: ['prepare', 'to prepare', 'get ready', 'to get ready'],
+    en: 'to prepare', th: 'เตรียม', category: 'gwageo',
+    example: { ko: '저녁을 준비해요.', en: 'I prepare dinner.' }
+  },
+  {
+    ko: '다음 주', rom: 'daeum ju', syl: ['da', 'eum', 'ju'],
+    accept: ['next week'],
+    en: 'next week', th: 'สัปดาห์หน้า', category: 'gwageo',
+    example: { ko: '다음 주에 시험이 있어요.', en: 'I have an exam next week.' }
+  },
+  {
+    ko: '지난달', rom: 'jinandal', syl: ['ji', 'nan', 'dal'],
+    accept: ['last month'],
+    en: 'last month', th: 'เดือนที่แล้ว', category: 'gwageo',
+    example: { ko: '지난달에 한국에 왔어요.', en: 'I came to Korea last month.' }
+  },
+  {
+    ko: '많이', rom: 'manhi', syl: ['man', 'i'], say: '마니',
+    accept: ['a lot', 'lot', 'much', 'many', 'a lot of'],
+    en: 'a lot', th: 'มาก', category: 'gwageo',
+    example: { ko: '밥을 많이 먹어요.', en: 'I eat a lot of rice.' }
+  },
+  {
+    ko: '다음 달', rom: 'daeum dal', syl: ['da', 'eum', 'dal'],
+    accept: ['next month'],
+    en: 'next month', th: 'เดือนหน้า', category: 'gwageo',
+    example: { ko: '다음 달에 여행을 가요.', en: 'I am going on a trip next month.' }
+  },
+  {
+    ko: '작년', rom: 'jangnyeon', syl: ['jak', 'nyeon'], say: '장년',
+    accept: ['last year'],
+    en: 'last year', th: 'ปีที่แล้ว', category: 'gwageo',
+    example: { ko: '작년에 태국에 갔어요.', en: 'I went to Thailand last year.' }
+  },
+  {
+    ko: '내년', rom: 'naenyeon', syl: ['nae', 'nyeon'],
+    accept: ['next year'],
+    en: 'next year', th: 'ปีหน้า', category: 'gwageo',
+    example: { ko: '내년에 졸업해요.', en: 'I graduate next year.' }
+  },
+  {
+    ko: '전', rom: 'jeon', syl: ['jeon'],
+    accept: ['before', 'ago', 'before / ago'],
+    en: 'before / ago', th: 'ก่อน / ที่ผ่านมา', category: 'gwageo',
+    example: { ko: '일 년 전에 한국에 왔어요.', en: 'I came to Korea a year ago.' }
+  },
+  {
+    ko: '때', rom: 'ttae', syl: ['ttae'],
+    accept: ['when', 'time', 'the time when'],
+    en: 'when', th: 'เมื่อไหร่', category: 'gwageo',
+    example: { ko: '어릴 때 춤을 췄어요.', en: 'I danced when I was young.' }
+  },
+  {
+    ko: '그 다음에', rom: 'geu daeume', syl: ['geu', 'da', 'eum', 'e'], say: '그 다으메',
+    accept: ['and then', 'after that', 'then', 'next'],
+    en: 'and then / after that', th: 'แล้วก็ / หลังจากนั้น', category: 'gwageo',
+    example: { ko: '그 다음에 커피를 마셨어요.', en: 'After that, I drank coffee.' }
+  },
+  {
+    ko: '아프다', rom: 'apeuda', syl: ['a', 'peu', 'da'],
+    accept: ['be sick', 'to be sick', 'sick', 'hurt', 'to hurt', 'be ill', 'ill'],
+    en: 'to be sick', th: 'ป่วย / เจ็บ', category: 'gwageo',
+    example: { ko: '어제 많이 아팠어요.', en: 'I was very sick yesterday.' }
+  },
+  {
+    ko: '기분이 좋다', rom: 'gibuni jota', syl: ['gi', 'bun', 'i', 'jot', 'da'], say: '기부니 조타',
+    accept: ['feel good', 'to feel good', 'be in a good mood', 'good mood'],
+    en: 'to feel good', th: 'อารมณ์ดี / รู้สึกดี', category: 'gwageo',
+    example: { ko: '오늘 기분이 좋아요.', en: 'I feel good today.' }
+  },
+  {
+    ko: '요리(를) 하다', rom: 'yorireul hada', syl: ['yo', 'ri', 'reul', 'ha', 'da'],
+    accept: ['cook', 'to cook'],
+    en: 'to cook', th: 'ทำอาหาร', category: 'gwageo',
+    example: { ko: '주말에 요리를 해요.', en: 'I cook on the weekend.' }
+  },
+  {
+    ko: '이사(를) 하다', rom: 'isareul hada', syl: ['i', 'sa', 'reul', 'ha', 'da'],
+    accept: ['move', 'to move', 'move house', 'to move house'],
+    en: 'to move (house)', th: 'ย้ายบ้าน', category: 'gwageo',
+    example: { ko: '지난달에 이사를 했어요.', en: 'I moved last month.' }
+  },
+  {
+    ko: '청소(를) 하다', rom: 'cheongsoreul hada', syl: ['cheong', 'so', 'reul', 'ha', 'da'],
+    accept: ['clean', 'to clean', 'clean up', 'to clean up'],
+    en: 'to clean', th: 'ทำความสะอาด', category: 'gwageo',
+    example: { ko: '토요일에 청소를 해요.', en: 'I clean on Saturday.' }
+  },
+  {
+    ko: '학교(를) 졸업하다', rom: 'hakgyoreul joreopada', syl: ['hak', 'gyo', 'reul', 'jol', 'eop', 'ha', 'da'], say: '(학꾜를) 조러파다',
+    accept: ['graduate', 'to graduate', 'graduate from school', 'to graduate from school'],
+    en: 'to graduate (from school)', th: 'จบการศึกษา', category: 'gwageo',
+    example: { ko: '작년에 학교를 졸업했어요.', en: 'I graduated from school last year.' }
+  },
+  {
+    ko: '피곤하다', rom: 'pigonhada', syl: ['pi', 'gon', 'ha', 'da'],
+    accept: ['be tired', 'to be tired', 'tired'],
+    en: 'to be tired', th: 'เหนื่อย', category: 'gwageo',
+    example: { ko: '오늘은 피곤해요.', en: 'I am tired today.' }
+  },
+  {
+    ko: '결혼(을) 하다', rom: 'gyeolhoneul hada', syl: ['gyeol', 'hon', 'eul', 'ha', 'da'], say: '(결호늘) 하다',
+    accept: ['get married', 'to get married', 'marry', 'to marry'],
+    en: 'to get married', th: 'แต่งงาน', category: 'gwageo',
+    example: { ko: '내년에 결혼을 해요.', en: 'I am getting married next year.' }
+  },
+  {
+    ko: '음식', rom: 'eumsik', syl: ['eum', 'sik'],
+    accept: ['food'],
+    en: 'food', th: 'อาหาร', category: 'gwageo',
+    example: { ko: '한국 음식을 좋아해요.', en: 'I like Korean food.' }
+  },
+  {
+    ko: '노래하다', rom: 'noraehada', syl: ['no', 'rae', 'ha', 'da'],
+    accept: ['sing', 'to sing'],
+    en: 'to sing', th: 'ร้องเพลง', category: 'gwageo',
+    example: { ko: '노래방에서 노래해요.', en: 'I sing at a karaoke room.' }
+  },
+  {
+    ko: '초대하다', rom: 'chodaehada', syl: ['cho', 'dae', 'ha', 'da'],
+    accept: ['invite', 'to invite'],
+    en: 'to invite', th: 'เชิญ', category: 'gwageo',
+    example: { ko: '친구를 집에 초대해요.', en: 'I invite a friend to my home.' }
+  },
+  {
+    ko: '맛있다', rom: 'masitda', syl: ['mat', 'it', 'da'], say: '마싣따',
+    accept: ['delicious', 'tasty', 'be delicious', 'to be delicious'],
+    en: 'delicious', th: 'อร่อย', category: 'gwageo',
+    example: { ko: '이 음식은 맛있어요.', en: 'This food is delicious.' }
+  },
+  {
+    ko: '그래서', rom: 'geuraeseo', syl: ['geu', 'rae', 'seo'],
+    accept: ['so', 'therefore', 'so / therefore'],
+    en: 'so / therefore', th: 'ดังนั้น / เพราะฉะนั้น', category: 'gwageo',
+    example: { ko: '피곤해요. 그래서 집에서 쉬어요.', en: 'I am tired, so I rest at home.' }
   }
 ];
